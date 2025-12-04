@@ -20,9 +20,9 @@ struct HomeHeaderView: View {
             HStack {
                 Spacer()
                 Button(action: onAddTapped) {
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
                         .resizable()
-                        .frame(width: 32, height: 32)
+                        .frame(width: 25, height: 25)
                         .foregroundColor(.blue)
                 }
             }

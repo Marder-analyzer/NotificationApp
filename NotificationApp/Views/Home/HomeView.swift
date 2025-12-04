@@ -10,18 +10,17 @@ import SwiftUI
 struct HomeView: View {
     // MARK: - Değişkenler
     @StateObject private var viewModel = HomeViewModel()
-    
+    @State private var navigateToAddScreen = false
     let statusOptions = ["Tümü", "Açık", "İnceleniyor", "Çözüldü"]
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 10) {
                 HomeHeaderView(onAddTapped: {
-                    print("Yeni bildirim ekle tıklandı")
+                    navigateToAddScreen = true
                 })
                 
                 HStack(spacing: 12) {
-                    
                     CustomSearchBar(text: $viewModel.searchText)
                     
                     FilterMenuView(viewModel: viewModel)
@@ -44,6 +43,9 @@ struct HomeView: View {
             }
             .navigationBarHidden(true)
             .background(Color.white)
+            .navigationDestination(isPresented: $navigateToAddScreen) {
+                CreateNotificationView()
+            }
         }
     }
 }

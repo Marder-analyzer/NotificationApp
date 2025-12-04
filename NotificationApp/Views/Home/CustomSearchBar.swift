@@ -29,7 +29,7 @@ struct CustomSearchBar: View {
         }
         .padding(10)
         .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .cornerRadius(15)
     }
 }
 
