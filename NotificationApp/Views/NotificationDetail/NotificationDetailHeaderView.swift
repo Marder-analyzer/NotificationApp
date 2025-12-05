@@ -1,40 +1,45 @@
 //
-//  NotificationRowHeaderView.swift
+//  NotificationDetailHeaderView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Rumeysa Tokur on 4.12.2025.
 //
 
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct NotificationRowHeader: View {
+struct NotificationDetailHeaderView: View {
     // MARK: - Değişkenler
     let notification: NotificationItem
+    @Binding var currentStatus: NotificationStatus
+    let userRole: String = "Admin"
     
     var body: some View {
-        HStack {
+        HStack(spacing: 15) {
+            
+            StatusBadgeView(status: currentStatus, role: userRole) 
+            
             HStack(spacing: 6) {
                 Image(systemName: notification.type.iconName)
-                    .foregroundColor(notification.type.color)
-                
+                    .font(.headline)
                 Text(notification.type.rawValue)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(notification.type.color)
+
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .foregroundColor(notification.type.color)
+            .background(notification.type.color.opacity(0.1))
+            .clipShape(.rect(cornerRadius: 35))
             
             Spacer()
-            
-            Text(notification.date.toTurkishFormat)
-                .font(.caption)
-                .foregroundColor(.gray)
         }
     }
 }
 
 #Preview {
-    NotificationRowHeader(notification: NotificationItem(
+    NotificationDetailView(notification: NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",

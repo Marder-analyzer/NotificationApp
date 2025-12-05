@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CoreLocation
 
 // MARK: - Bildirim Türleri (Enum)
 enum NotificationType: String, CaseIterable {
@@ -60,4 +61,13 @@ struct NotificationItem: Identifiable {
     let description: String
     let date: Date
     let status: NotificationStatus
+    let userName: String
+    let address: String
+    let coordinate: CLLocationCoordinate2D
+    let imageUrls: [String]
+}
+
+struct SelectedImage: Identifiable {
+    let id = UUID()
+    let imageName: String
 }

@@ -25,15 +25,16 @@ class CreateNotificationViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
     @Published var showCamera: Bool = false
+    @Published var address: String = "Konum seçiliyor..."
     
     @Published var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27), 
+        center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     )
     
     // MARK: - Doğrulama (Validation)
     var isValid: Bool {
-        return title.count >= 3 && description.count >= 5
+        return !title.isEmpty && !description.isEmpty
     }
     
     // MARK: - Fonksiyonlar
@@ -46,13 +47,85 @@ class CreateNotificationViewModel: ObservableObject {
     }
     
     func submitNotification(completion: @escaping () -> Void) {
+        
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).count < 3 {
+            self.alertMessage = "Lütfen geçerli bir başlık giriniz. (En az 3 karakter)"
+            self.showAlert = true
+            return
+        }
+        
+        if description.trimmingCharacters(in: .whitespacesAndNewlines).count < 5 {
+            self.alertMessage = "Lütfen olayı detaylı açıklayınız. (En az 5 karakter)"
+            self.showAlert = true
+            return
+        }
+        
         isSubmitting = true
+        
+        let newNotification = NotificationItem(
+            type: selectedType,
+            title: title,
+            description: description,
+            date: Date(),
+            status: .open,
+            userName: "Mevcut Kullanıcı",
+            address: self.address,
+            coordinate: region.center,
+            imageUrls: []
+        )
+        
+        print("Veritabanına Gönderiliyor:")
+        print("Başlık: \(newNotification.title)")
+        print("Adres: \(newNotification.address)")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             self.isSubmitting = false
             self.alertMessage = "Bildirim başarıyla oluşturuldu!"
             self.showAlert = true
+            
+            self.title = ""
+            self.description = ""
+            self.selectedImage = nil
+            self.address = ""
+            
             completion()
+        }
+    }
+    
+    @MainActor
+    func getAddressFromLatLon(latitude: Double, longitude: Double) async {
+        let geocoder = CLGeocoder()
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let locale = Locale(identifier: "tr_TR")
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(location, preferredLocale: locale)
+            
+            guard let place = placemarks.first else {
+                self.address = "Bilinmeyen konum."
+                return
+            }
+            
+            var addressParts: [String] = []
+            
+            if let mahalle = place.subLocality { addressParts.append("\(mahalle) Mah.") }
+            if let cadde = place.thoroughfare { addressParts.append(cadde) }
+            if let no = place.subThoroughfare { addressParts.append("No:\(no)") }
+            if let ilce = place.locality { addressParts.append(ilce) }
+            if let il = place.administrativeArea { addressParts.append(il) }
+            
+            let fullAddress = addressParts.joined(separator: " ")
+            
+            if fullAddress.trimmingCharacters(in: .whitespaces).isEmpty {
+                self.address = "\(latitude), \(longitude)"
+            } else {
+                self.address = fullAddress
+            }
+            print("Adres Güncellendi: \(self.address)")
+            
+        } catch {
+            print("Adres hatası: \(error.localizedDescription)")
+            self.address = "Adres bulunamadı."
         }
     }
 }

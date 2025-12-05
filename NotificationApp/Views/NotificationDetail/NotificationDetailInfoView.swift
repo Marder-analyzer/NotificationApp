@@ -1,40 +1,31 @@
 //
-//  NotificationRowView.swift
+//  NotificationDetailInfoView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Rumeysa Tokur on 5.12.2025.
 //
 
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct NotificationRowView: View {
-    // MARK: - Değişkenler
+struct NotificationDetailInfoView: View {
     let notification: NotificationItem
     
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
             
-            NotificationRowHeader(notification: notification)
+            NotificationDetailInfoRow(icon: "calendar", color: .blue, text: notification.date.toTurkishFormat)
             
-            Divider()
+            NotificationDetailInfoRow(icon: "person.fill", color: .purple, text: notification.userName)
             
-            NotificationRowContent(notification: notification)
-            
-            NotificationRowFooter(notification: notification)
-            
+            NotificationDetailInfoRow(icon: "mappin.and.ellipse", color: .red, text: notification.address)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.top, 10)
     }
-    
 }
 
 #Preview {
-    NotificationRowView(notification: NotificationItem(
+    NotificationDetailView(notification: NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",

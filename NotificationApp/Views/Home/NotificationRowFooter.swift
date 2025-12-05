@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import _MapKit_SwiftUI
 
 struct NotificationRowFooter: View {
     // MARK: - Değişkenler
@@ -29,8 +30,16 @@ struct NotificationRowFooter: View {
 
 #Preview {
     NotificationRowFooter(notification: NotificationItem(
-        type: .technical,
-        title: "", description: "", date: Date(), status: .investigating
+        type: .security,
+        title: "Kütüphane Arkası Şüpheli Paket",
+        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
+        date: Date(),
+        status: .open,
+        userName: "Ahmet Yılmaz",
+        address: "Merkezi Yemekhane Önü, Kampüs",
+        coordinate: CLLocationCoordinate2D(latitude: 39.90,
+                                           longitude: 41.27),
+        imageUrls: [""]
     ))
     .padding()
 }

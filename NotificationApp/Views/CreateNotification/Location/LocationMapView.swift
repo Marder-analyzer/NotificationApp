@@ -45,8 +45,7 @@ struct LocationMapView: View {
             }
         }
         .frame(height: 250)
-        .cornerRadius(15)
-        .clipped()
+        .clipShape(.rect(cornerRadius: 20))
     }
 }
 

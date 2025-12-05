@@ -32,8 +32,11 @@ struct HomeView: View {
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(viewModel.filteredNotifications) { item in
-                            NotificationRowView(notification: item)
-                                .padding(.horizontal)
+                            NavigationLink(destination: NotificationDetailView(notification: item)) {
+                                NotificationRowView(notification: item)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
                         }
                     }
                     .padding(.top, 10)
@@ -46,6 +49,9 @@ struct HomeView: View {
             .navigationDestination(isPresented: $navigateToAddScreen) {
                 CreateNotificationView()
             }
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 }

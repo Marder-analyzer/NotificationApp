@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import _MapKit_SwiftUI
 
 // MARK: - Ana Ekran ViewModel
 class HomeViewModel: ObservableObject {
@@ -36,33 +37,39 @@ class HomeViewModel: ObservableObject {
                 title: "Kütüphane Arkası Şüpheli Paket",
                 description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
                 date: Date(),
-                status: .open
+                status: .open,
+                userName: "Ahmet Yılmaz",
+                address: "Merkezi Yemekhane Önü, Kampüs",
+                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
+                imageUrls: [""]
             ),
             NotificationItem(
                 type: .health,
                 title: "Yemekhane Önü Baygınlık",
                 description: "Bir öğrenci fenalaştı, acil müdahale gerekiyor.",
                 date: Date().addingTimeInterval(-3600),
-                status: .investigating
+                status: .investigating,
+                userName: "Ahmet Yılmaz",
+                address: "Merkezi Yemekhane Önü, Kampüs",
+                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
+                imageUrls: [""]
             ),
             NotificationItem(
                 type: .technical,
                 title: "Projeksiyon Arızası",
                 description: "D-102 nolu sınıfta projeksiyon cihazı çalışmıyor.",
                 date: Date().addingTimeInterval(-86400),
-                status: .resolved
+                status: .resolved,
+                userName: "Ahmet Yılmaz",
+                address: "Merkezi Yemekhane Önü, Kampüs",
+                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
+                imageUrls: [""]
             )
         ]
         
         self.notifications = mockData.sorted(by: { $0.date > $1.date })
     }
-    
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy HH:mm"
-        return formatter.string(from: date)
-    }
-    
+
     // MARK: - Gelişmiş Filtreleme Mantığı (Logic)
     var filteredNotifications: [NotificationItem] {
         

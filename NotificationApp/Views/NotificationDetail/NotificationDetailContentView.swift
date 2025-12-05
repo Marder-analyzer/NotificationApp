@@ -1,40 +1,34 @@
 //
-//  NotificationRowHeaderView.swift
+//  NotificationDetailContentView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Rumeysa Tokur on 4.12.2025.
 //
 
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct NotificationRowHeader: View {
-    // MARK: - Değişkenler
+struct NotificationDetailContentView: View {
     let notification: NotificationItem
     
     var body: some View {
-        HStack {
-            HStack(spacing: 6) {
-                Image(systemName: notification.type.iconName)
-                    .foregroundColor(notification.type.color)
-                
-                Text(notification.type.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(notification.type.color)
-            }
+        VStack(alignment: .leading, spacing: 15) {
             
-            Spacer()
+            Text(notification.title)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
             
-            Text(notification.date.toTurkishFormat)
-                .font(.caption)
+            Text(notification.description)
+                .font(.body)
                 .foregroundColor(.gray)
+                .lineSpacing(4)
         }
     }
 }
 
 #Preview {
-    NotificationRowHeader(notification: NotificationItem(
+    NotificationDetailContentView(notification: NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
