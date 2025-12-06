@@ -1,0 +1,80 @@
+//
+//  AuthCoordinator.swift
+//  NotificationApp
+//
+//  Created by Safiyenur Ozer on 6.12.2025.
+//
+
+import Foundation
+import FirebaseAuth
+import Combine
+
+@MainActor
+final class AuthCoordinator: ObservableObject {
+	@Published var user: AuthUser?
+	@Published var isLoading: Bool = false
+	@Published var errorMessage: String?
+	
+	private let repository: AuthRepository
+	
+	init(repository: AuthRepository) {
+		self.repository = repository
+		
+		self.user = repository.currentUser
+		
+		repository.observeAuthChanges { [ weak self ] authUser in
+			Task { @MainActor in
+				self?.user = authUser
+			}
+		}
+	}
+	
+	func login(email: String, password: String) async -> AuthUser? {
+		guard !email.isEmpty, !password.isEmpty else {
+			errorMessage = "Email ve şifre boş olamaz."
+			return nil
+		}
+		
+		isLoading = true
+		errorMessage = nil
+		
+		do {
+			self.user = try await repository.login(email: email, password: password)
+			isLoading = false
+			return user
+		} catch {
+			self.errorMessage = error.localizedDescription
+		}
+		
+		isLoading = false
+		
+		return nil
+	}
+	
+	func register(email: String, password: String) async {
+		guard !email.isEmpty, !password.isEmpty else {
+			errorMessage = "Email ve şifre boş olamaz."
+			return
+		}
+		
+		isLoading = true
+		errorMessage = nil
+		
+		do {
+			self.user = try await repository.register(email: email, password: password)
+		} catch {
+			errorMessage = error.localizedDescription
+		}
+		
+		isLoading = false
+	}
+	
+	func logout() async {
+		do {
+			try await repository.logout()
+			self.user = nil
+		} catch {
+			self.errorMessage = error.localizedDescription
+		}
+	}
+}
