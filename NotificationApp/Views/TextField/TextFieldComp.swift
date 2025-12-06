@@ -1,0 +1,61 @@
+//
+//  TextFieldComp.swift
+//  NotificationApp
+//
+//  Created by Safiyenur Ozer on 6.12.2025.
+//
+
+import Foundation
+import SwiftUI
+
+struct TextFieldComp: View {
+	
+	@State var title: String?
+	@State var placeholder: String?
+	@State private var text: String = ""
+	
+	@State private var debounceTask: Task<Void, Never>?
+	private var onCodeCompletion: ((String) -> Void)?
+	
+	let configuration: TextFieldConfiguration
+	
+	init(title: String?,
+			 placeholder: String? = nil,
+			 configuration: TextFieldConfiguration) {
+		self.title = title
+		self.placeholder = placeholder
+		self.configuration = configuration
+	}
+	
+	var body: some View {
+		VStack(alignment: .leading, spacing: 0) {
+			if let title {
+				Text(title)
+					.foregroundStyle(configuration.titleColor ?? .black)
+					.padding(configuration.padding ?? EdgeInsets())
+			}
+			
+			if configuration.isSecure ?? false {
+				SecureField("", text: $text, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
+					.textFieldConfiguration(configuration)
+			} else {
+				TextField("", text: $text, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
+					.textFieldConfiguration(configuration)
+			}
+		}
+		.onChange(of: self.text, { oldValue, newValue in
+			debounceTask?.cancel()
+			
+			debounceTask = Task {
+				try? await Task.sleep(nanoseconds: 300_000_000)
+				onCodeCompletion?(newValue)
+			}
+		})
+	}
+	
+	public func onCodeCompletion( _ closure: @escaping (String) -> Void) -> Self {
+		var copy = self
+		copy.onCodeCompletion = closure
+		return copy
+	}
+}
