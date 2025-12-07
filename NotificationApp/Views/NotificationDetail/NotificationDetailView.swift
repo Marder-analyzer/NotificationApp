@@ -16,7 +16,7 @@ struct NotificationDetailView: View {
     
     init(notification: NotificationItem) {
         self.notification = notification
-        _editedStatus = State(initialValue: notification.status)
+			_editedStatus = State(initialValue: notification.status)
     }
     
     var body: some View {
@@ -47,13 +47,13 @@ struct NotificationDetailView: View {
                 .padding(.bottom, 70)
             }
             
-            NotificationSaveChangesButton(
-                currentStatus: editedStatus,
-                originalStatus: notification.status,
-                onSave: {
-                    print("Veritabanı güncelleniyor: \(editedStatus.rawValue)")
-                }
-            )
+					NotificationSaveChangesButton(
+							currentStatus: editedStatus,
+							originalStatus: notification.status,
+							onSave: {
+									print("Veritabanı güncelleniyor: \(editedStatus.rawValue)")
+							}
+					)
         }
         .scrollIndicators(.never)
         .navigationTitle("Bildirim Detayı")
@@ -65,19 +65,4 @@ struct NotificationDetailView: View {
             }
         }
     }
-}
-
-#Preview {
-    NotificationDetailView(notification: NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
-        imageUrls: ["", ""]
-    ))
 }

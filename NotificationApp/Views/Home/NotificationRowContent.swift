@@ -14,11 +14,11 @@ struct NotificationRowContent: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(notification.title)
+            Text(notification.title ?? "")
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            Text(notification.description)
+            Text(notification.description ?? "")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
@@ -36,8 +36,7 @@ struct NotificationRowContent: View {
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
+        coordinate: "",
         imageUrls: [""]
     ))
     .padding()
