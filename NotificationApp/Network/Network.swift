@@ -6,16 +6,47 @@
 //
 
 import Foundation
+import FirebaseDatabase
 
-final class NetworkDataSource<T: Decodable> {
-	let url: URL
+final class NetworkDataSource<Entity: Decodable & FirebaseSaveable> {
+//	let url: URL
+//	
+//	init(url: URL) {
+//		self.url = url
+//	}
 	
-	init(url: URL) {
-		self.url = url
+	func fetch() async throws -> [Entity] {
+		let ref = Database.database().reference().child("notifications")
+		
+		return try await withCheckedThrowingContinuation { continuation in
+			ref.observeSingleEvent(of: .value) { snapshot in
+				guard let dict = snapshot.value as? [String: Any] else {
+					continuation.resume(returning: [])
+					return
+				}
+				
+				do {
+					let jsonData = try JSONSerialization.data(withJSONObject: dict)
+					let decoded = try JSONDecoder().decode([String: Entity].self, from: jsonData)
+					continuation.resume(returning: Array(decoded.values))
+				} catch {
+					continuation.resume(throwing: error)
+				}
+			}
+		}
 	}
 	
-	func fetch() async throws -> [T] {
-		let (data, _) = try await URLSession.shared.data(from: url)
-		return try JSONDecoder().decode([T].self, from: data)
+	func save(_ item: Entity, completion: @escaping () -> ()) {
+		let ref = Database.database().reference()
+		
+		let notificationRef = ref.child("notifications").child(item.id.uuidString)
+		
+		notificationRef.setValue(item.toDictionary()) { error, _ in
+			if let error = error {
+				print("Bildirim kaydedilirken hata: \(error.localizedDescription)")
+			} else {
+				completion()
+			}
+		}
 	}
 }

@@ -5,7 +5,7 @@
 //  Created by Safiyenur Ozer on 6.12.2025.
 //
 
-final class GenericRepository<Model: Codable, C: Cache>: Repository where C.Value == Model {
+final class GenericRepository<Model: Codable & FirebaseSaveable, C: Cache>: Repository where C.Value == Model {
 	typealias Entity = Model
 	
 	private let cache: C
@@ -23,7 +23,7 @@ final class GenericRepository<Model: Codable, C: Cache>: Repository where C.Valu
 		}
 		
 		let items = try await remote.fetch()
-		await cache.set(items)
+		await cache.save(items)
 		return items
 	}
 }

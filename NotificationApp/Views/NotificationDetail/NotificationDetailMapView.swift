@@ -20,7 +20,7 @@ struct NotificationDetailMapView: View {
         let coordinate = notification.coordinate
         
         let region = MKCoordinateRegion(
-            center: coordinate,
+					center: CLLocationCoordinate2D(latitude: 1, longitude: 1),
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         )
         self._cameraPosition = State(initialValue: .region(region))
@@ -28,28 +28,12 @@ struct NotificationDetailMapView: View {
     
     var body: some View {
         Map(position: $cameraPosition) {
-            
-            Marker(notification.title, coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27))
-                .tint(.red)
+					Marker(notification.title, coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27))
+							.tint(.red)
         }
         .frame(height: 250)
         .frame(maxWidth: .infinity)
         .clipShape(.rect(cornerRadius: 20))
         .padding()
     }
-}
-
-#Preview {
-    NotificationDetailView(notification: NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
-        imageUrls: [""]
-    ))
 }

@@ -35,5 +35,4 @@ final class GenericViewModel<R: Repository>: ObservableObject {
 			}
 		}
 	}
-	
 }

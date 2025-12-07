@@ -37,8 +37,7 @@ struct NotificationRowFooter: View {
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
+        coordinate: "",
         imageUrls: [""]
     ))
     .padding()

@@ -14,11 +14,11 @@ struct NotificationDetailInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             
-            NotificationDetailInfoRow(icon: "calendar", color: .blue, text: notification.date.toTurkishFormat)
+            NotificationDetailInfoRow(icon: "calendar", color: .blue, text: notification.date?.toTurkishFormat)
             
-            NotificationDetailInfoRow(icon: "person.fill", color: .purple, text: notification.userName)
+					NotificationDetailInfoRow(icon: "person.fill", color: .purple, text: notification.userName)
             
-            NotificationDetailInfoRow(icon: "mappin.and.ellipse", color: .red, text: notification.address)
+					NotificationDetailInfoRow(icon: "mappin.and.ellipse", color: .red, text: notification.address)
         }
         .padding(.top, 10)
     }
@@ -33,8 +33,7 @@ struct NotificationDetailInfoView: View {
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
+        coordinate: "",
         imageUrls: [""]
     ))
 }

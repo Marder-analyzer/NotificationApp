@@ -31,43 +31,6 @@ class HomeViewModel: ObservableObject {
     
     // MARK: - Sahte Veri(Şimdilik)
     func fetchNotifications() {
-        let mockData = [
-            NotificationItem(
-                type: .security,
-                title: "Kütüphane Arkası Şüpheli Paket",
-                description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-                date: Date(),
-                status: .open,
-                userName: "Ahmet Yılmaz",
-                address: "Merkezi Yemekhane Önü, Kampüs",
-                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
-                imageUrls: [""]
-            ),
-            NotificationItem(
-                type: .health,
-                title: "Yemekhane Önü Baygınlık",
-                description: "Bir öğrenci fenalaştı, acil müdahale gerekiyor.",
-                date: Date().addingTimeInterval(-3600),
-                status: .investigating,
-                userName: "Ahmet Yılmaz",
-                address: "Merkezi Yemekhane Önü, Kampüs",
-                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
-                imageUrls: [""]
-            ),
-            NotificationItem(
-                type: .technical,
-                title: "Projeksiyon Arızası",
-                description: "D-102 nolu sınıfta projeksiyon cihazı çalışmıyor.",
-                date: Date().addingTimeInterval(-86400),
-                status: .resolved,
-                userName: "Ahmet Yılmaz",
-                address: "Merkezi Yemekhane Önü, Kampüs",
-                coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
-                imageUrls: [""]
-            )
-        ]
-        
-        self.notifications = mockData.sorted(by: { $0.date > $1.date })
     }
 
     // MARK: - Gelişmiş Filtreleme Mantığı (Logic)
@@ -95,7 +58,7 @@ class HomeViewModel: ObservableObject {
             
             return matchesSearch && matchesStatus && matchesType && matchesFollowed && matchesAdminScope
         }
-        .sorted(by: { $0.date > $1.date })
+				.sorted(by: { $0.date ?? .now > $1.date ?? .now })
     }
 }
 
