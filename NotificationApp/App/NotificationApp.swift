@@ -1,5 +1,5 @@
 //
-//  NotificationAppApp.swift
+//  NotificationApp.swift
 //  NotificationApp
 //
 //  Created by Rumeysa Tokur on 3.12.2025.
@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseCore
 
 @main
-struct NotificationAppApp: App {
+struct NotificationApp: App {
 	@UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 	
 	@StateObject private var authCoordinator: AuthCoordinator
@@ -21,8 +21,13 @@ struct NotificationAppApp: App {
 	
 	var body: some Scene {
 		WindowGroup {
-			LoginContainerView()
-				.environmentObject(authCoordinator)
+			if let user = authCoordinator.user {
+				HomeView()
+			} else {
+				LoginContainerView()
+					.environmentObject(authCoordinator)
+			}
+			
 		}
 	}
 }

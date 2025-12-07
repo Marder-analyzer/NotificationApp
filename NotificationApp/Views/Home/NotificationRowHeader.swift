@@ -20,35 +20,20 @@ struct NotificationRowHeader: View {
 	func header() -> some View {
 		HStack {
 			HStack(spacing: 6) {
-				Image(systemName: notification.type.iconName)
-					.foregroundColor(notification.type.color)
+				Image(systemName: notification.type?.iconName ?? "")
+					.foregroundColor(notification.type?.color)
 				
-				Text(notification.type.rawValue)
+				Text(notification.type?.rawValue ?? "")
 					.font(.subheadline)
 					.fontWeight(.semibold)
-					.foregroundColor(notification.type.color)
+					.foregroundColor(notification.type?.color)
 			}
 			
 			Spacer()
 			
-			Text(notification.date.toTurkishFormat)
+			Text(notification.date?.toTurkishFormat ?? "")
 				.font(.caption)
 				.foregroundColor(.gray)
 		}
 	}
-}
-
-#Preview {
-	NotificationRowHeader(notification: NotificationItem(
-		type: .security,
-		title: "Kütüphane Arkası Şüpheli Paket",
-		description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-		date: Date(),
-		status: .open,
-		userName: "Ahmet Yılmaz",
-		address: "Merkezi Yemekhane Önü, Kampüs",
-		coordinate: CLLocationCoordinate2D(latitude: 39.90,
-																			 longitude: 41.27),
-		imageUrls: [""]
-	))
 }

@@ -33,17 +33,36 @@ struct NotificationRowView: View {
     
 }
 
-#Preview {
-    NotificationRowView(notification: NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
-        imageUrls: [""]
-    ))
+struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationItem {
+	@StateObject private var vm: GenericViewModel<R>
+	
+	init(repository: R) {
+		_vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+	}
+	
+	var body: some View {
+		NavigationView {
+			ScrollView {
+				if vm.isLoading {
+					
+				} else {
+					LazyVStack(spacing: 16) {
+						ForEach(vm.notificationModel) { item in
+							NavigationLink(destination: NotificationDetailView(notification: item)) {
+								NotificationRowView(notification: item)
+							}
+							.buttonStyle(PlainButtonStyle())
+							.padding(.horizontal)
+						}
+					}
+					.padding(.top, 10)
+				}
+			}
+			.background(Color(.systemGroupedBackground))
+			.scrollIndicators(.never)
+		}
+		.task {
+			vm.loadNotifications()
+		}
+	}
 }

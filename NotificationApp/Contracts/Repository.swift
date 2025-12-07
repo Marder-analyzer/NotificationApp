@@ -14,6 +14,6 @@ protocol Repository {
 
 protocol Cache {
 	associatedtype Value
-	func set(_ value: [Value]) async
+	func save(_ value: [Value]) async
 	func get() async -> [Value]
 }

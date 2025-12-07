@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import _PhotosUI_SwiftUI
+import FirebaseAuth
 internal import MapKit
 
 class CreateNotificationViewModel: ObservableObject {
@@ -62,34 +63,30 @@ class CreateNotificationViewModel: ObservableObject {
         
         isSubmitting = true
         
-        let newNotification = NotificationItem(
-            type: selectedType,
-            title: title,
-            description: description,
-            date: Date(),
-            status: .open,
-            userName: "Mevcut Kullanıcı",
-            address: self.address,
-            coordinate: region.center,
-            imageUrls: []
-        )
+			let newNotification = NotificationItem(
+				type: selectedType,
+				title: title,
+				description: description,
+				date: Date(),
+				status: .open,
+				userName: Auth.auth().currentUser?.email ?? "",
+				address: self.address,
+				coordinate: "",
+				imageUrls: [""]
+			)
         
-        print("Veritabanına Gönderiliyor:")
-        print("Başlık: \(newNotification.title)")
-        print("Adres: \(newNotification.address)")
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.isSubmitting = false
-            self.alertMessage = "Bildirim başarıyla oluşturuldu!"
-            self.showAlert = true
-            
-            self.title = ""
-            self.description = ""
-            self.selectedImage = nil
-            self.address = ""
-            
-            completion()
-        }
+			NetworkDataSource().save(newNotification) {
+				self.isSubmitting = false
+				self.alertMessage = "Bildirim başarıyla oluşturuldu!"
+				self.showAlert = true
+				
+				self.title = ""
+				self.description = ""
+				self.selectedImage = nil
+				self.address = ""
+				
+				completion()
+			}
     }
     
     @MainActor

@@ -15,7 +15,7 @@ struct NotificationDetailPhotosView: View {
     @State private var selectedImage: SelectedImage?
     
     var body: some View {
-        if !notification.imageUrls.isEmpty {
+			if let images = notification.imageUrls, !images.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Eklenen Fotoğraflar")
                     .font(.title3)
@@ -24,7 +24,7 @@ struct NotificationDetailPhotosView: View {
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(notification.imageUrls, id: \.self) { imageName in
+                        ForEach(images, id: \.self) { imageName in
                             Image(imageName)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -44,19 +44,4 @@ struct NotificationDetailPhotosView: View {
             }
         }
     }
-}
-
-#Preview {
-    NotificationDetailPhotosView(notification: NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
-        imageUrls: ["", ""]
-    ))
 }

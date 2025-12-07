@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+internal import _LocationEssentials
 
 struct LoginContainerView: View {
 	//MARK: - Değişkenler
