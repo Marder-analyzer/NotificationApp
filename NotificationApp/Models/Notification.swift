@@ -10,7 +10,7 @@ import SwiftUI
 import CoreLocation
 
 // MARK: - Bildirim Türleri (Enum)
-enum NotificationType: String, CaseIterable {
+enum NotificationType: String, Codable, CaseIterable {
     case security = "Güvenlik"
     case health = "Sağlık"
     case technical = "Teknik Arıza"
@@ -39,7 +39,7 @@ enum NotificationType: String, CaseIterable {
 }
 
 // MARK: - Bildirim Durumları (Enum)
-enum NotificationStatus: String, CaseIterable {
+enum NotificationStatus: String, Codable, CaseIterable {
     case open = "Açık"
     case investigating = "İnceleniyor"
     case resolved = "Çözüldü"
@@ -54,20 +54,49 @@ enum NotificationStatus: String, CaseIterable {
 }
 
 // MARK: - Bildirim Veri Modeli (Model)
-struct NotificationItem: Identifiable {
-    let id = UUID()
-    let type: NotificationType
-    let title: String
-    let description: String
-    let date: Date
-    let status: NotificationStatus
-    let userName: String
-    let address: String
-    let coordinate: CLLocationCoordinate2D
-    let imageUrls: [String]
+class NotificationItem: Codable, Identifiable, FirebaseSaveable {
+	let id = UUID()
+	let type: NotificationType?
+	let title: String
+	let description: String
+	let date: Date?
+	let status: NotificationStatus
+	let userName: String?
+	let address: String?
+	let coordinate: String?
+	let imageUrls: [String]?
+	
+	init(type: NotificationType?, title: String, description: String, date: Date?, status: NotificationStatus, userName: String?, address: String?, coordinate: String?, imageUrls: [String]?) {
+		self.type = type
+		self.title = title
+		self.description = description
+		self.date = date
+		self.status = status
+		self.userName = userName
+		self.address = address
+		self.coordinate = coordinate
+		self.imageUrls = imageUrls
+	}
 }
 
 struct SelectedImage: Identifiable {
     let id = UUID()
     let imageName: String
+}
+
+extension NotificationItem {
+	func toDictionary() -> [String: Any] {
+		return [
+			"id": id.uuidString,
+			"type": type?.rawValue,
+			"title": title,
+			"description": description,
+			"date": date?.timeIntervalSince1970,
+			"status": status.rawValue,
+			"userName": userName,
+			"address": address,
+			"coordinate": "",
+			"imageUrls": imageUrls
+		]
+	}
 }

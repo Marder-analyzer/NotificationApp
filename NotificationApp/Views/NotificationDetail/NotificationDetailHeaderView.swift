@@ -20,17 +20,17 @@ struct NotificationDetailHeaderView: View {
             StatusBadgeView(status: currentStatus, role: userRole) 
             
             HStack(spacing: 6) {
-                Image(systemName: notification.type.iconName)
+                Image(systemName: notification.type?.iconName ?? "")
                     .font(.headline)
-                Text(notification.type.rawValue)
+                Text(notification.type?.rawValue ?? "")
                     .font(.subheadline)
                     .fontWeight(.semibold)
 
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
-            .foregroundColor(notification.type.color)
-            .background(notification.type.color.opacity(0.1))
+						.foregroundColor(notification.type?.color)
+						.background(notification.type?.color.opacity(0.1))
             .clipShape(.rect(cornerRadius: 35))
             
             Spacer()
@@ -47,8 +47,7 @@ struct NotificationDetailHeaderView: View {
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: CLLocationCoordinate2D(latitude: 39.90,
-                                           longitude: 41.27),
+        coordinate: "",
         imageUrls: [""]
     ))
 }
