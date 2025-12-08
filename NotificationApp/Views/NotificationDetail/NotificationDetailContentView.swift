@@ -2,7 +2,7 @@
 //  NotificationDetailContentView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 4.12.2025.
+//  Created by Mehmet Can Arslan on 4.12.2025.
 //
 
 import SwiftUI
@@ -17,11 +17,11 @@ struct NotificationDetailContentView: View {
             Text(notification.title ?? "")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             
             Text(notification.description ?? "")
                 .font(.body)
-                .foregroundColor(.gray)
+                .foregroundColor(Color.hexConverter(hexString: "#9ca3af"))
                 .lineSpacing(4)
         }
     }

@@ -2,7 +2,7 @@
 //  NotificationDetailPhotosView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 5.12.2025.
+//  Created by Mehmet Can Arslan on 5.12.2025.
 //
 
 import SwiftUI
@@ -20,6 +20,7 @@ struct NotificationDetailPhotosView: View {
                 Text("Eklenen Fotoğraflar")
                     .font(.title3)
                     .bold()
+                    .foregroundStyle(.white)
                     .padding()
                 
                 ScrollView(.horizontal, showsIndicators: false) {

@@ -2,7 +2,7 @@
 //  LocationSelectionView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -16,6 +16,7 @@ struct LocationSelectionView: View {
             Text("Konum")
                 .font(.title3)
                 .bold()
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             LocationMapView(region: $viewModel.region)

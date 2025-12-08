@@ -2,7 +2,7 @@
 //  PhotoSelectionView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -16,6 +16,7 @@ struct PhotoSelectionView: View {
             Text("Fotoğraf Ekle")
                 .font(.title3)
                 .bold()
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack(spacing: 15) {

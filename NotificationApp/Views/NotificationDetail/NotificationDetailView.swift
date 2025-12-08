@@ -2,7 +2,7 @@
 //  NotificationDetailView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 4.12.2025.
+//  Created by Mehmet Can Arslan on 4.12.2025.
 //
 
 import SwiftUI
@@ -12,18 +12,43 @@ struct NotificationDetailView: View {
     // MARK: - Değişkenler
     let notification: NotificationItem
     @State private var isFollowed: Bool = false
-    @State private var editedStatus: NotificationStatus
-    
-    init(notification: NotificationItem) {
-        self.notification = notification
-			_editedStatus = State(initialValue: notification.status)
-    }
+    @State private var editedStatus: NotificationStatus = .open
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack() {
+            Color.hexConverter(hexString: "#13181f")
+                .ignoresSafeArea()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 24) {
+                    HStack {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .tint(.white)
+                                .bold()
+                        }
+                        
+                        Spacer()
+                        
+                        Text("Bildirim Detayı")
+                            .foregroundStyle(.white)
+                            .font(.title2)
+                            .bold()
+                        
+                        Spacer()
+                        
+                        NotificationSaveChangesButton {
+                            print("a")
+                        }
+
+                    }
+                    .padding(.horizontal)
+                    
+                    Divider()
+                        .background(.white.opacity(0.2))
                     
                     NotificationDetailMapView(notification: notification)
                     
@@ -44,25 +69,23 @@ struct NotificationDetailView: View {
                         NotificationDetailPhotosView(notification: notification)
                     }
                 }
-                .padding(.bottom, 70)
             }
-            
-					NotificationSaveChangesButton(
-							currentStatus: editedStatus,
-							originalStatus: notification.status,
-							onSave: {
-									print("Veritabanı güncelleniyor: \(editedStatus.rawValue)")
-							}
-					)
-        }
-        .scrollIndicators(.never)
-        .navigationTitle("Bildirim Detayı")
-        .navigationBarTitleDisplayMode(.inline)
-        .background(Color(.systemGroupedBackground))
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NotificationFollowButton()
-            }
+            .scrollIndicators(.never)
+            .navigationBarHidden(true)
         }
     }
+}
+
+#Preview {
+    NotificationDetailView(notification:  NotificationItem(
+        type: .security,
+        title: "Kütüphane Arkası Şüpheli Paket",
+        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
+        date: Date(),
+        status: .open,
+        userName: "Ahmet Yılmaz",
+        address: "Merkezi Yemekhane Önü, Kampüs",
+        coordinate: "",
+        imageUrls: [""]
+    ))
 }

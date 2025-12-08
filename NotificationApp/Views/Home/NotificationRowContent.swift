@@ -2,7 +2,7 @@
 //  NotificationRowContent.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -16,11 +16,11 @@ struct NotificationRowContent: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(notification.title ?? "")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             
             Text(notification.description ?? "")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.hexConverter(hexString: "#8e8e93"))
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
         }
