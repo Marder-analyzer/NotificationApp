@@ -2,7 +2,7 @@
 //  NotificationDetailInfoView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 5.12.2025.
+//  Created by Mehmet Can Arslan on 5.12.2025.
 //
 
 import SwiftUI
@@ -14,18 +14,21 @@ struct NotificationDetailInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             
-            NotificationDetailInfoRow(icon: "calendar", color: .blue, text: notification.date?.toTurkishFormat)
+            NotificationDetailInfoRow(icon: "calendar",
+                                      text: notification.date?.toTurkishFormat)
             
-					NotificationDetailInfoRow(icon: "person.fill", color: .purple, text: notification.userName)
+            NotificationDetailInfoRow(icon: "person.fill",
+                                      text: notification.userName)
             
-					NotificationDetailInfoRow(icon: "mappin.and.ellipse", color: .red, text: notification.address)
+            NotificationDetailInfoRow(icon: "mappin.and.ellipse",
+                                      text: notification.address)
         }
         .padding(.top, 10)
     }
 }
 
 #Preview {
-    NotificationDetailView(notification: NotificationItem(
+    NotificationDetailInfoView(notification: NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",

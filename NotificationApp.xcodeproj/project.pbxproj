@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-
 		3A2AA5D62EE4AED6008DB6B5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3A2AA5D52EE4AED6008DB6B5 /* FirebaseAuth */; };
 		3A2AA5D82EE4AED6008DB6B5 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 3A2AA5D72EE4AED6008DB6B5 /* FirebaseAuthCombine-Community */; };
 		3A2AA5DA2EE4AED6008DB6B5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3A2AA5D92EE4AED6008DB6B5 /* FirebaseCore */; };

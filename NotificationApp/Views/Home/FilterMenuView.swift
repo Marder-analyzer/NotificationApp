@@ -2,7 +2,7 @@
 //  FilterMenuView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -32,14 +32,13 @@ struct FilterMenuView: View {
                     Label("Yetki Alanım (\(viewModel.currentUserDepartment.rawValue))", systemImage: "building.shield.fill")
                 }
             }
-            
         } label: {
             Image(systemName: isFilterActive ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                 .resizable()
                 .frame(width: 24, height: 24)
-                .foregroundColor(isFilterActive ? .blue : .gray)
+                .foregroundColor(isFilterActive ? .white : Color.hexConverter(hexString: "#8e8e93"))
                 .padding(10)
-                .background(Color(.systemGray6))
+                .background(isFilterActive ? .blue : Color.hexConverter(hexString:"#1c2630"))
                 .cornerRadius(10)
         }
     }

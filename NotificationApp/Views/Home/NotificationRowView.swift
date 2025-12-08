@@ -2,7 +2,7 @@
 //  NotificationRowView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -26,7 +26,7 @@ struct NotificationRowView: View {
             
         }
         .padding()
-        .background(Color.white)
+        .background(Color.hexConverter(hexString:"#1c2630"))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
@@ -58,8 +58,8 @@ struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationI
 					.padding(.top, 10)
 				}
 			}
-			.background(Color(.systemGroupedBackground))
 			.scrollIndicators(.never)
+            .background(Color.hexConverter(hexString: "#13181f"))
 		}
 		.task {
 			vm.loadNotifications()

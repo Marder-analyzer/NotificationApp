@@ -2,7 +2,7 @@
 //  NotificationApp.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -22,7 +22,7 @@ struct NotificationApp: App {
 	var body: some Scene {
 		WindowGroup {
 			if let user = authCoordinator.user {
-				HomeView()
+				MainTabView()
 			} else {
 				LoginContainerView()
 					.environmentObject(authCoordinator)

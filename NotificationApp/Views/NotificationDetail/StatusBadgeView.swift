@@ -2,7 +2,7 @@
 //  StatusBadgeView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 5.12.2025.
+//  Created by Mehmet Can Arslan on 5.12.2025.
 //
 
 import SwiftUI

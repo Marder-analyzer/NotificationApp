@@ -2,7 +2,7 @@
 //  NotificationDetailsView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -16,25 +16,43 @@ struct NotificationDetailsView: View {
                 Text("Başlık")
                     .font(.title3)
                     .bold()
+                    .foregroundStyle(.white.opacity(0.7))
                 
                 TextField("Rapor başlığını girin", text: $viewModel.title)
+                    .foregroundStyle(.white)
                     .padding()
+                    .background(Color.hexConverter(hexString:"#1c2630"))
                     .overlay(RoundedRectangle(cornerRadius: 10)
-                        .stroke(.gray, lineWidth: 1))
+                        .stroke(.white.opacity(0.2), lineWidth: 1))
+                    .accentColor(.white)
+                    .onAppear {
+                        UITextField.appearance().attributedPlaceholder = NSAttributedString(
+                            string: "Rapor başlığını girin",
+                            attributes: [NSAttributedString.Key.foregroundColor: UIColor(Color.hexConverter(hexString: "#8e8e93"))]
+                        )
+                    }
             }
-            
             
             VStack(alignment: .leading, spacing: 10) {
                 Text("Açıklama")
                     .font(.title3)
                     .bold()
+                    .foregroundStyle(.white.opacity(0.7))
                 
                 TextField("Olay hakkında detaylı bilgi verin", text: $viewModel.description, axis: .vertical)
+                    .foregroundStyle(.white)
                     .lineLimit(4...10)
                     .padding()
+                    .background(Color.hexConverter(hexString:"#1c2630"))
                     .overlay(RoundedRectangle(cornerRadius: 10)
-                        .stroke(.gray, lineWidth: 1))
-                    
+                        .stroke(.white.opacity(0.2), lineWidth: 1))
+                    .accentColor(.white)
+                    .onAppear {
+                        UITextField.appearance().attributedPlaceholder = NSAttributedString(
+                            string: "Olay hakkında detaylı bilgi verin",
+                            attributes: [NSAttributedString.Key.foregroundColor: UIColor(Color.hexConverter(hexString: "#8e8e93"))]
+                        )
+                    }
             }
         }
     }

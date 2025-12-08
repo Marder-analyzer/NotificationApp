@@ -2,7 +2,7 @@
 //  CreateNotificationView.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import SwiftUI
@@ -13,29 +13,54 @@ struct CreateNotificationView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                
-                NotificationDetailsView(viewModel: viewModel)
-                
-                NotificationTypeSelectionView(viewModel: viewModel)
-                
-                NotificationEvidenceView(viewModel: viewModel)
-                
-                NotificationSubmitButtonView(viewModel: viewModel)
+        ZStack {
+            Color.hexConverter(hexString: "#13181f")
+                .ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    ZStack {
+                        Text("Yeni Bildirim Oluştur")
+                            .foregroundStyle(.white)
+                            .font(.title2)
+                            .bold()
+                        
+                        HStack {
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "chevron.left")
+                                    .tint(.white)
+                                    .bold()
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                    }
+                    
+                    Divider()
+                        .background(.white.opacity(0.2))
+                    
+                    NotificationDetailsView(viewModel: viewModel)
+                    
+                    NotificationTypeSelectionView(viewModel: viewModel)
+                    
+                    NotificationEvidenceView(viewModel: viewModel)
+                    
+                    NotificationSubmitButtonView(viewModel: viewModel)
+                }
+                .padding()
             }
-            .padding()
-        }
-        .scrollIndicators(.never)
-        .navigationTitle("Yeni Bildirim Oluştur")
-        .navigationBarTitleDisplayMode(.inline)
-        .onTapGesture {
-            hideKeyboard()
-        }
-        .alert("Başarılı", isPresented: $viewModel.showAlert) {
-            Button("Tamam") { dismiss() }
-        } message: {
-            Text(viewModel.alertMessage)
+            .scrollIndicators(.never)
+            .onTapGesture {
+                hideKeyboard()
+            }
+            .alert("Başarılı", isPresented: $viewModel.showAlert) {
+                Button("Tamam") { dismiss() }
+            } message: {
+                Text(viewModel.alertMessage)
+            }
+            .navigationBarHidden(true)
         }
     }
 }
