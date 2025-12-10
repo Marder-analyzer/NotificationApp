@@ -10,6 +10,8 @@ import SwiftUI
 struct NotificationDetailsView: View {
     @ObservedObject var viewModel: CreateNotificationViewModel
     
+    let configuration = LocationConfiguration()
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 10) {
@@ -18,18 +20,9 @@ struct NotificationDetailsView: View {
                     .bold()
                     .foregroundStyle(.white.opacity(0.7))
                 
-                TextField("Rapor başlığını girin", text: $viewModel.title)
-                    .foregroundStyle(.white)
-                    .padding()
-                    .background(Color.hexConverter(hexString:"#1c2630"))
-                    .overlay(RoundedRectangle(cornerRadius: 10)
-                        .stroke(.white.opacity(0.2), lineWidth: 1))
-                    .accentColor(.white)
-                    .onAppear {
-                        UITextField.appearance().attributedPlaceholder = NSAttributedString(
-                            string: "Rapor başlığını girin",
-                            attributes: [NSAttributedString.Key.foregroundColor: UIColor(Color.hexConverter(hexString: "#8e8e93"))]
-                        )
+                TextFieldComp(title: nil, placeholder: "Rapor başlığını girin", configuration: configuration.createNotificationTitleConfiguration)
+                    .onCodeCompletion { text in
+                        viewModel.title = text
                     }
             }
             
@@ -57,6 +50,8 @@ struct NotificationDetailsView: View {
         }
     }
 }
+
+
 
 #Preview {
     NotificationDetailsView(viewModel: CreateNotificationViewModel())

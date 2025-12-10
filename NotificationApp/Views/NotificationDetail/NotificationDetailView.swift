@@ -16,7 +16,7 @@ struct NotificationDetailView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        ZStack() {
+        ZStack {
             Color.hexConverter(hexString: "#13181f")
                 .ignoresSafeArea()
             

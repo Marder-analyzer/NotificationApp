@@ -11,6 +11,7 @@ struct CreateNotificationView: View {
     // MARK: - Değişkenler
     @StateObject private var viewModel = CreateNotificationViewModel()
     @Environment(\.dismiss) var dismiss
+    var showBackButton: Bool = false
     
     var body: some View {
         ZStack {
@@ -25,17 +26,18 @@ struct CreateNotificationView: View {
                             .bold()
                         
                         HStack {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "chevron.left")
-                                    .tint(.white)
-                                    .bold()
+                            if showBackButton {
+                                Button {
+                                    dismiss()
+                                } label: {
+                                    Image(systemName: "chevron.left")
+                                        .tint(.white)
+                                        .bold()
+                                }
                             }
                             
                             Spacer()
                         }
-                        
                     }
                     
                     Divider()
@@ -49,8 +51,9 @@ struct CreateNotificationView: View {
                     
                     NotificationSubmitButtonView(viewModel: viewModel)
                 }
-                .padding()
+                .padding(.horizontal)
             }
+            .navigationBarHidden(true)
             .scrollIndicators(.never)
             .onTapGesture {
                 hideKeyboard()
@@ -60,11 +63,10 @@ struct CreateNotificationView: View {
             } message: {
                 Text(viewModel.alertMessage)
             }
-            .navigationBarHidden(true)
         }
     }
 }
 
 #Preview {
-    CreateNotificationView()
+    CreateNotificationView(showBackButton: false)
 }

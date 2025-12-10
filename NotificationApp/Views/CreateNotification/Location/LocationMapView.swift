@@ -10,27 +10,63 @@ import _MapKit_SwiftUI
 
 struct LocationMapView: View {
     @Binding var region: MKCoordinateRegion
+    @State private var navigateToMap = false
+    @StateObject private var locationManager = LocationManager()
+
+    @State private var isLocationSelected = false
     
+    // MARK: - Main Body
     var body: some View {
         ZStack(alignment: .center) {
-            Map(coordinateRegion: $region)
-                .disabled(true)
-                .overlay(
-                    Image(systemName: "mappin")
-                        .font(.title)
-                        .foregroundColor(.red)
-                        .shadow(radius: 2)
-                        .padding(.bottom, 20)
-                )
+            mapLayer
+            
+            if isLocationSelected {
+                selectedPinMarker
+            } else {
+                placeholderOverlay
+            }
+        }
+        .frame(height: 250)
+        .clipShape(.rect(cornerRadius: 20))
+        .onTapGesture {
+            if isLocationSelected { navigateToMap = true }
+        }
+        .navigationDestination(isPresented: $navigateToMap) {
+            ChooseLocationView(region: $region, isLocationSelected: $isLocationSelected)
+                .navigationBarHidden(true)
+                .toolbar(.hidden, for: .tabBar)
+        }
+    }
 
+    private var mapLayer: some View {
+        Map(coordinateRegion: $region, showsUserLocation: true)
+            .edgesIgnoringSafeArea(.all)
+            .disabled(isLocationSelected)
+            .onAppear {
+                if !isLocationSelected { locationManager.requestLocation() }
+            }
+            .onChange(of: locationManager.userLocation) { newLocation in
+                if !isLocationSelected, let location = newLocation {
+                    withAnimation {
+                        region = MKCoordinateRegion(
+                            center: location,
+                            span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+                        )
+                    }
+                }
+            }
+    }
+    
+    private var placeholderOverlay: some View {
+        ZStack {
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .opacity(0.6)
                 .overlay(Color.black.opacity(0.3))
             
-            Button(action: {
-                print("Konum seçme moduna girildi")
-            }) {
+            Button {
+                navigateToMap = true
+            } label: {
                 HStack {
                     Image(systemName: "mappin.and.ellipse")
                     Text("Konum Seç")
@@ -44,8 +80,14 @@ struct LocationMapView: View {
                 .shadow(radius: 5)
             }
         }
-        .frame(height: 250)
-        .clipShape(.rect(cornerRadius: 20))
+    }
+    
+    private var selectedPinMarker: some View {
+        Image(systemName: "mappin.fill")
+            .font(.largeTitle)
+            .foregroundColor(.red)
+            .padding(.bottom, 20)
+            .shadow(radius: 4)
     }
 }
 

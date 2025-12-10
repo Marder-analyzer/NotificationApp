@@ -11,21 +11,18 @@ struct CustomSearchBar: View {
     
     // MARK: - Değişkenler
     @Binding var text: String
+    let configuration = HomeConfiguration()
     
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(Color.hexConverter(hexString: "#8e8e93"))
             
-            TextField("Bildirimlerde ara...", text: $text)
-                .foregroundColor(.white)
-                .accentColor(.white)
-                .onAppear {
-                    UITextField.appearance().attributedPlaceholder = NSAttributedString(
-                        string: "Bildirimlerde ara...",
-                        attributes: [NSAttributedString.Key.foregroundColor: UIColor(Color.hexConverter(hexString: "#8e8e93"))]
-                    )
+            TextFieldComp(title: nil, placeholder: "Bildirimlerde ara...", configuration: configuration.homeConfiguration)
+                .onCodeCompletion { text in
+                    
                 }
+                .accentColor(.white)
             
             if !text.isEmpty {
                 Button(action: { text = "" }) {

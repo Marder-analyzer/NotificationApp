@@ -29,7 +29,6 @@ struct HomeHeaderView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.vertical, 10)
     }
 }
 

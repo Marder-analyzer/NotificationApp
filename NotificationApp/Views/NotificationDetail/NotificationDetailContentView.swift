@@ -13,13 +13,12 @@ struct NotificationDetailContentView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            
-            Text(notification.title ?? "")
+            Text(notification.title)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
             
-            Text(notification.description ?? "")
+            Text(notification.description)
                 .font(.body)
                 .foregroundColor(Color.hexConverter(hexString: "#9ca3af"))
                 .lineSpacing(4)
