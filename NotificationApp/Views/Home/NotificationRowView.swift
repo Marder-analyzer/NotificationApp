@@ -40,29 +40,29 @@ struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationI
 		_vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
 	}
 	
-	var body: some View {
-		NavigationView {
-			ScrollView {
-				if vm.isLoading {
-					
-				} else {
-					LazyVStack(spacing: 16) {
-						ForEach(vm.notificationModel) { item in
-							NavigationLink(destination: NotificationDetailView(notification: item)) {
-								NotificationRowView(notification: item)
-							}
-							.buttonStyle(PlainButtonStyle())
-							.padding(.horizontal)
-						}
-					}
-					.padding(.top, 10)
-				}
-			}
-			.scrollIndicators(.never)
-            .background(Color.hexConverter(hexString: "#13181f"))
-		}
-		.task {
-			vm.loadNotifications()
-		}
-	}
+    var body: some View {
+        
+        ScrollView {
+            if vm.isLoading {
+                
+            } else {
+                LazyVStack(spacing: 16) {
+                    ForEach(vm.notificationModel) { item in
+                        NavigationLink(destination: NotificationDetailView(notification: item)
+                            .toolbar(.hidden, for: .tabBar)) {
+                            NotificationRowView(notification: item)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.horizontal)
+                    }
+                }
+                .padding(.top, 10)
+            }
+        }
+        .scrollIndicators(.never)
+        .background(Color.clear)
+        .task {
+            vm.loadNotifications()
+        }
+    }
 }
