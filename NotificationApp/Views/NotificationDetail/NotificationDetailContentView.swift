@@ -23,5 +23,6 @@ struct NotificationDetailContentView: View {
                 .foregroundColor(Color.hexConverter(hexString: "#9ca3af"))
                 .lineSpacing(4)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

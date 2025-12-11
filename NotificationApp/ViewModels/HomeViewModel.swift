@@ -58,7 +58,7 @@ class HomeViewModel: ObservableObject {
             
             return matchesSearch && matchesStatus && matchesType && matchesFollowed && matchesAdminScope
         }
-				.sorted(by: { $0.date ?? .now > $1.date ?? .now })
+//				.sorted(by: { $0.date ?? .now > $1.date ?? .now })
     }
 }
 

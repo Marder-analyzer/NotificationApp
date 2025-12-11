@@ -6,6 +6,6 @@
 //
 
 struct AuthUser: Identifiable, Equatable {
-		let id: String
-		let email: String?
+    let id: String
+    let email: String?
 }

@@ -14,6 +14,7 @@ struct LocationMapView: View {
     @StateObject private var locationManager = LocationManager()
 
     @State private var isLocationSelected = false
+    var onRegionChange: ((CLLocationCoordinate2D) -> Void)? = nil
     
     // MARK: - Main Body
     var body: some View {
@@ -35,6 +36,11 @@ struct LocationMapView: View {
             ChooseLocationView(region: $region, isLocationSelected: $isLocationSelected)
                 .navigationBarHidden(true)
                 .toolbar(.hidden, for: .tabBar)
+                .onDisappear {
+                    if isLocationSelected {
+                        onRegionChange?(region.center)
+                    }
+                }
         }
     }
 
@@ -47,12 +53,7 @@ struct LocationMapView: View {
             }
             .onChange(of: locationManager.userLocation) { newLocation in
                 if !isLocationSelected, let location = newLocation {
-                    withAnimation {
-                        region = MKCoordinateRegion(
-                            center: location,
-                            span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-                        )
-                    }
+                    updateRegion(to: location)
                 }
             }
     }
@@ -88,6 +89,16 @@ struct LocationMapView: View {
             .foregroundColor(.red)
             .padding(.bottom, 20)
             .shadow(radius: 4)
+    }
+    
+    private func updateRegion(to coordinate: CLLocationCoordinate2D) {
+        withAnimation {
+            region = MKCoordinateRegion(
+                center: coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+            )
+        }
+        onRegionChange?(coordinate)
     }
 }
 

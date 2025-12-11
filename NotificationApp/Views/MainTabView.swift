@@ -19,7 +19,7 @@ struct MainTabView: View {
             }
             Tab("Map", systemImage: "map.fill", value: 1) {
                 NavigationStack {
-                    HomeView()
+                    MapView()
                 }
             }
             Tab("Create", systemImage: "plus.circle.fill", value: 2) {

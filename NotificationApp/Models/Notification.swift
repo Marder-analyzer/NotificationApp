@@ -59,14 +59,14 @@ class NotificationItem: Codable, Identifiable, FirebaseSaveable {
 	let type: NotificationType?
 	let title: String
 	let description: String
-	let date: Date?
+	let date: String?
 	let status: NotificationStatus
 	let userName: String?
-	let address: String?
-	let coordinate: String?
+	let address: String
+	let coordinate: String
 	let imageUrls: [String]?
 	
-	init(type: NotificationType?, title: String, description: String, date: Date?, status: NotificationStatus, userName: String?, address: String?, coordinate: String?, imageUrls: [String]?) {
+    init(type: NotificationType?, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?) {
 		self.type = type
 		self.title = title
 		self.description = description
@@ -91,11 +91,11 @@ extension NotificationItem {
 			"type": type?.rawValue,
 			"title": title,
 			"description": description,
-			"date": date?.timeIntervalSince1970,
+			"date": date,
 			"status": status.rawValue,
 			"userName": userName,
 			"address": address,
-			"coordinate": "",
+			"coordinate": coordinate,
 			"imageUrls": imageUrls
 		]
 	}

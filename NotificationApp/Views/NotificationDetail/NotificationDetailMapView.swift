@@ -14,13 +14,25 @@ struct NotificationDetailMapView: View {
     
     @State private var cameraPosition: MapCameraPosition
     
+    private var markerCoordinate: CLLocationCoordinate2D
+    
     init(notification: NotificationItem) {
         self.notification = notification
         
-        let coordinate = notification.coordinate
+        let components = notification.coordinate.split(separator: ",")
+        
+        var parsedCoordinate = CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27)
+        
+        if components.count == 2,
+           let lat = Double(components[0].trimmingCharacters(in: .whitespaces)),
+           let lon = Double(components[1].trimmingCharacters(in: .whitespaces)) {
+            parsedCoordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        }
+        
+        self.markerCoordinate = parsedCoordinate
         
         let region = MKCoordinateRegion(
-					center: CLLocationCoordinate2D(latitude: 1, longitude: 1),
+            center: parsedCoordinate,
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         )
         self._cameraPosition = State(initialValue: .region(region))
@@ -28,12 +40,19 @@ struct NotificationDetailMapView: View {
     
     var body: some View {
         Map(position: $cameraPosition) {
-					Marker(notification.title, coordinate: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27))
-							.tint(.red)
+            Marker(notification.title, coordinate: markerCoordinate)
+                .tint(.red)
         }
         .frame(height: 250)
         .frame(maxWidth: .infinity)
         .clipShape(.rect(cornerRadius: 20))
         .padding()
+        .onAppear {
+            let region = MKCoordinateRegion(
+                center: markerCoordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+            )
+            cameraPosition = .region(region)
+        }
     }
 }

@@ -2,7 +2,7 @@
 //  CreateNotificationViewModel.swift
 //  NotificationApp
 //
-//  Created by Rumeysa Tokur on 3.12.2025.
+//  Created by Mehmet Can Arslan on 3.12.2025.
 //
 
 import Foundation
@@ -63,30 +63,67 @@ class CreateNotificationViewModel: ObservableObject {
         
         isSubmitting = true
         
-			let newNotification = NotificationItem(
-				type: selectedType,
-				title: title,
-				description: description,
-				date: Date(),
-				status: .open,
-				userName: Auth.auth().currentUser?.email ?? "",
-				address: self.address,
-				coordinate: "",
-				imageUrls: [""]
-			)
+        let currentCoordinate = "\(region.center.latitude), \(region.center.longitude)"
         
-			NetworkDataSource().save(newNotification) {
-				self.isSubmitting = false
-				self.alertMessage = "Bildirim başarıyla oluşturuldu!"
-				self.showAlert = true
-				
-				self.title = ""
-				self.description = ""
-				self.selectedImage = nil
-				self.address = ""
-				
-				completion()
-			}
+        if let image = selectedImage {
+            uploadImage(image) { [weak self] imageUrl in
+                guard let self = self else { return }
+                
+                self.createAndSaveNotification(coordinate: currentCoordinate, imageUrl: imageUrl, completion: completion)
+            }
+        } else {
+            createAndSaveNotification(coordinate: currentCoordinate, imageUrl: nil, completion: completion)
+        }
+    }
+    
+    private func createAndSaveNotification(coordinate: String, imageUrl: String?, completion: @escaping () -> Void) {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.dateFormat = "d MMMM yyyy HH:mm"
+        
+        let dateString = formatter.string(from: Date())
+        let images = imageUrl != nil ? [imageUrl!] : []
+        
+        let newNotification = NotificationItem(
+            type: selectedType,
+            title: title,
+            description: description,
+            date: dateString,
+            status: .open,
+            userName: Auth.auth().currentUser?.email ?? "",
+            address: self.address,
+            coordinate: coordinate,
+            imageUrls: images
+        )
+        
+        NetworkDataSource().save(newNotification) {
+            DispatchQueue.main.async {
+                self.isSubmitting = false
+                self.alertMessage = "Bildirim başarıyla oluşturuldu!"
+                self.showAlert = true
+                
+                self.title = ""
+                self.description = ""
+                self.selectedImage = nil
+                self.selectedItem = nil
+                self.address = ""
+                
+                completion()
+            }
+        }
+    }
+    
+    private func uploadImage(_ image: UIImage, completion: @escaping (String?) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.5) else {
+            completion(nil)
+            return
+        }
+        
+        let network = NetworkDataSource<NotificationItem>()
+        
+        network.uploadImage(data: imageData) { urlString in
+            completion(urlString)
+        }
     }
     
     @MainActor
@@ -118,6 +155,10 @@ class CreateNotificationViewModel: ObservableObject {
             } else {
                 self.address = fullAddress
             }
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
             print("Adres Güncellendi: \(self.address)")
             
         } catch {

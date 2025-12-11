@@ -46,10 +46,16 @@ struct TextFieldComp: View {
 			if configuration.isSecure ?? false {
 				SecureField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
 					.textFieldConfiguration(configuration)
-			} else {
-				TextField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
-					.textFieldConfiguration(configuration)
-			}
+            } else {
+                if configuration.isMultiline ?? false {
+                    TextField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray), axis: .vertical)
+                        .lineLimit(4...10)
+                        .textFieldConfiguration(configuration)
+                } else {
+                    TextField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
+                        .textFieldConfiguration(configuration)
+                }
+            }
 		}
 		.onChange(of: textBinding.wrappedValue, { oldValue, newValue in
 			debounceTask?.cancel()

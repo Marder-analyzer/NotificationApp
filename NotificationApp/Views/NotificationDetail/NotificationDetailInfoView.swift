@@ -15,7 +15,7 @@ struct NotificationDetailInfoView: View {
         VStack(alignment: .leading, spacing: 16) {
             
             NotificationDetailInfoRow(icon: "calendar",
-                                      text: notification.date?.toTurkishFormat)
+                                      text: notification.date)
             
             NotificationDetailInfoRow(icon: "person.fill",
                                       text: notification.userName)
@@ -32,7 +32,7 @@ struct NotificationDetailInfoView: View {
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
+        date: "",
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
