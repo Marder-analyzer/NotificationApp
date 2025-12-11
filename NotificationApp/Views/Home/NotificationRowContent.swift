@@ -32,7 +32,7 @@ struct NotificationRowContent: View {
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: Date(),
+        date: "",
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",

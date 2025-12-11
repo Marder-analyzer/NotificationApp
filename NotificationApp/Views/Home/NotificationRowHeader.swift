@@ -31,7 +31,7 @@ struct NotificationRowHeader: View {
 			
 			Spacer()
 			
-			Text(notification.date?.toTurkishFormat ?? "")
+			Text(notification.date ?? "")
 				.font(.caption)
 				.foregroundColor(Color.hexConverter(hexString: "#8e8e93"))
 		}

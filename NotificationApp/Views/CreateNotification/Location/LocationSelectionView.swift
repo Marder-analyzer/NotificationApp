@@ -19,15 +19,17 @@ struct LocationSelectionView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            LocationMapView(region: $viewModel.region)
-                .onChange(of: viewModel.region.center.latitude) { _, _ in
+            LocationMapView(
+                region: $viewModel.region,
+                onRegionChange: { coordinate in
                     Task {
                         await viewModel.getAddressFromLatLon(
-                            latitude: viewModel.region.center.latitude,
-                            longitude: viewModel.region.center.longitude
+                            latitude: coordinate.latitude,
+                            longitude: coordinate.longitude
                         )
                     }
                 }
+            )
         }
         .padding(.vertical, 5)
         .onAppear {

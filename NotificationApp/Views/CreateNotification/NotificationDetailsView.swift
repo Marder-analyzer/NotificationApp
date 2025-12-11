@@ -20,7 +20,7 @@ struct NotificationDetailsView: View {
                     .bold()
                     .foregroundStyle(.white.opacity(0.7))
                 
-                TextFieldComp(title: nil, placeholder: "Rapor başlığını girin", configuration: configuration.createNotificationTitleConfiguration)
+                TextFieldComp(title: nil, placeholder: "Rapor başlığını girin", text: $viewModel.title, configuration: configuration.createNotificationTitleConfiguration)
                     .onCodeCompletion { text in
                         viewModel.title = text
                     }
@@ -32,20 +32,11 @@ struct NotificationDetailsView: View {
                     .bold()
                     .foregroundStyle(.white.opacity(0.7))
                 
-                TextField("Olay hakkında detaylı bilgi verin", text: $viewModel.description, axis: .vertical)
-                    .foregroundStyle(.white)
-                    .lineLimit(4...10)
-                    .padding()
-                    .background(Color.hexConverter(hexString:"#1c2630"))
-                    .overlay(RoundedRectangle(cornerRadius: 10)
-                        .stroke(.white.opacity(0.2), lineWidth: 1))
-                    .accentColor(.white)
-                    .onAppear {
-                        UITextField.appearance().attributedPlaceholder = NSAttributedString(
-                            string: "Olay hakkında detaylı bilgi verin",
-                            attributes: [NSAttributedString.Key.foregroundColor: UIColor(Color.hexConverter(hexString: "#8e8e93"))]
-                        )
-                    }
+                TextFieldComp(title: nil,
+                              placeholder: "Olay hakkında detaylı bilgi verin",
+                              text: $viewModel.description,
+                              configuration: configuration.descriptionConfiguration)
+                .onCodeCompletion { text in viewModel.description = text }
             }
         }
     }
