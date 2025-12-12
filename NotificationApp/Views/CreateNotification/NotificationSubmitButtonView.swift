@@ -18,7 +18,7 @@ struct NotificationSubmitButtonView: View {
             Text("Bildirimi Oluştur")
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(.blue)
+                .background(.blue.gradient)
                 .font(.title3)
                 .bold()
                 .foregroundStyle(.white)
