@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import CoreLocation
+internal import MapKit
 
 // MARK: - Bildirim Türleri (Enum)
 enum NotificationType: String, Codable, CaseIterable {
@@ -56,7 +57,7 @@ enum NotificationStatus: String, Codable, CaseIterable {
 // MARK: - Bildirim Veri Modeli (Model)
 class NotificationItem: Codable, Identifiable, FirebaseSaveable {
 	let id = UUID()
-	let type: NotificationType?
+	let type: NotificationType
 	let title: String
 	let description: String
 	let date: String?
@@ -66,7 +67,7 @@ class NotificationItem: Codable, Identifiable, FirebaseSaveable {
 	let coordinate: String
 	let imageUrls: [String]?
 	
-    init(type: NotificationType?, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?) {
+    init(type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?) {
 		self.type = type
 		self.title = title
 		self.description = description
@@ -77,6 +78,31 @@ class NotificationItem: Codable, Identifiable, FirebaseSaveable {
 		self.coordinate = coordinate
 		self.imageUrls = imageUrls
 	}
+    
+    var locationCoordinate: CLLocationCoordinate2D? {
+        let components = coordinate.split(separator: ",")
+        guard components.count == 2,
+              let lat = Double(components[0].trimmingCharacters(in: .whitespaces)),
+              let lon = Double(components[1].trimmingCharacters(in: .whitespaces)) else {
+            return nil
+        }
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+    
+    var dateObject: Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd.MM.yyyy HH:mm"
+        formatter.locale = Locale(identifier: "tr_TR")
+        return formatter.date(from: self.date ?? "")
+    }
+    
+    var timeAgo: String {
+        guard let dateObj = dateObject else { return date ?? "" }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        formatter.locale = Locale(identifier: "tr_TR")
+        return formatter.localizedString(for: dateObj, relativeTo: Date())
+    }
 }
 
 struct SelectedImage: Identifiable {
@@ -88,7 +114,7 @@ extension NotificationItem {
 	func toDictionary() -> [String: Any] {
 		return [
 			"id": id.uuidString,
-			"type": type?.rawValue,
+			"type": type.rawValue,
 			"title": title,
 			"description": description,
 			"date": date,

@@ -20,13 +20,13 @@ struct NotificationRowHeader: View {
 	func header() -> some View {
 		HStack {
 			HStack(spacing: 6) {
-				Image(systemName: notification.type?.iconName ?? "")
-					.foregroundColor(notification.type?.color)
+				Image(systemName: notification.type.iconName )
+					.foregroundColor(notification.type.color)
 				
-				Text(notification.type?.rawValue ?? "")
+				Text(notification.type.rawValue )
 					.font(.subheadline)
 					.fontWeight(.semibold)
-					.foregroundColor(notification.type?.color)
+					.foregroundColor(notification.type.color)
 			}
 			
 			Spacer()

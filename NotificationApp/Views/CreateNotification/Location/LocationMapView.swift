@@ -75,7 +75,7 @@ struct LocationMapView: View {
                 }
                 .padding(.horizontal, 30)
                 .padding(.vertical, 12)
-                .background(Color.blue)
+                .background(Color.blue.gradient)
                 .foregroundColor(.white)
                 .clipShape(Capsule())
                 .shadow(radius: 5)

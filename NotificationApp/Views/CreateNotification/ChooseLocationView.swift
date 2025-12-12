@@ -172,7 +172,7 @@ struct ChooseLocationView: View {
                         .font(.title2)
                         .foregroundColor(.white)
                         .padding(16)
-                        .background(Color.blue)
+                        .background(Color.blue.gradient)
                         .clipShape(Circle())
                         .shadow(radius: 6)
                 }
