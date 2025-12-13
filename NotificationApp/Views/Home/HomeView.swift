@@ -7,8 +7,13 @@
 
 import SwiftUI
 
-struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
+    @StateObject private var vm: GenericViewModel<R>
+    
+    init(repository: R) {
+        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+    }
+    
     @State private var navigateToAddScreen = false
     let statusOptions = ["Tümü", "Açık", "İnceleniyor", "Çözüldü"]
     
@@ -23,18 +28,32 @@ struct HomeView: View {
                 })
                 
                 HStack(spacing: 12) {
-                    CustomSearchBar(text: $viewModel.searchText)
-                    FilterMenuView(viewModel: viewModel)
+                    CustomSearchBar(text: $vm.searchText)
+                    
+                    Button {
+                        vm.sortOrder.toggle()
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down")
+                            .padding(10)
+                            .background(Color.hexConverter(hexString: "#1c2630"))
+                            .foregroundColor(Color.hexConverter(hexString: "#8e8e93"))
+                            .cornerRadius(12)
+                    }
+                    
+                    FilterMenuView(viewModel: vm)
                 }
                 .padding(.horizontal)
                 
                 StatusFilterView(
-                    selectedIndex: $viewModel.selectedStatusIndex,
+                    selectedIndex: $vm.selectedStatusIndex,
                     options: statusOptions
                 )
                 
-                let repo = RepositoryFactory().makeNotificationRepository()
-                NotificationRowView2(repository: repo)
+                NotificationRowView2(vm: vm)
+                    .padding(.horizontal)
+            }
+            .onAppear {
+                vm.loadNotifications()
             }
             .onTapGesture {
                 hideKeyboard()
@@ -42,14 +61,12 @@ struct HomeView: View {
             .navigationDestination(isPresented: $navigateToAddScreen) {
                 CreateNotificationView(showBackButton: true)
                     .toolbar(.hidden, for: .tabBar)
-
-                    
             }
         }
-        .navigationBarHidden(true)
     }
 }
 
 #Preview {
-    HomeView()
+    let repo = RepositoryFactory().makeNotificationRepository()
+    HomeView(repository: repo)
 }

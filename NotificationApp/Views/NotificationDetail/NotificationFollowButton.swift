@@ -13,7 +13,8 @@ struct NotificationFollowButton: View {
     var body: some View {
         Button(action: toggleFollow) {
             Image(systemName: isFollowed ? "bookmark.fill" : "bookmark")
-                .font(.system(size: 14))
+                .bold()
+                .foregroundColor(.white)
                 .scaleEffect(isFollowed ? 1.1 : 1.0)
                 .animation(.spring(), value: isFollowed)
         }

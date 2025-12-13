@@ -32,14 +32,6 @@ struct LocationSelectionView: View {
             )
         }
         .padding(.vertical, 5)
-        .onAppear {
-            Task {
-                await viewModel.getAddressFromLatLon(
-                    latitude: viewModel.region.center.latitude,
-                    longitude: viewModel.region.center.longitude
-                )
-            }
-        }
     }
 }
 

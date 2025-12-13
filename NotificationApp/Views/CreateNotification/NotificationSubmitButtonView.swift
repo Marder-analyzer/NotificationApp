@@ -24,7 +24,6 @@ struct NotificationSubmitButtonView: View {
                 .foregroundStyle(.white)
                 .clipShape(.rect(cornerRadius: 10))
         }
-        
     }
 }
 

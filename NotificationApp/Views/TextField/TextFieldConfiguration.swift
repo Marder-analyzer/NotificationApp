@@ -20,7 +20,7 @@ class TextFieldConfiguration {
 	let padding: EdgeInsets?
 	let keyboardType: UIKeyboardType?
 	let isSecure: Bool?
-    let isMultiline: Bool?
+    let accentColor: Color?
 	
 	init(borderRadius: CGFloat? = nil,
 			 borderColor: Color? = nil,
@@ -35,7 +35,7 @@ class TextFieldConfiguration {
 			 padding: EdgeInsets? = nil,
 			 keyboardType: UIKeyboardType? = nil,
 			 isSecure: Bool = false,
-             isMultiline: Bool = false
+         accentColor: Color? = nil
 	) {
 		self.borderRadius = borderRadius
 		self.borderColor = borderColor
@@ -50,6 +50,6 @@ class TextFieldConfiguration {
 		self.padding = padding
 		self.keyboardType = keyboardType
 		self.isSecure = isSecure
-        self.isMultiline = isMultiline
+        self.accentColor = accentColor
 	}
 }

@@ -8,6 +8,6 @@
 import Foundation
 
 protocol FirebaseSaveable {
-	var id: UUID { get }
+	var id: String { get }
 	func toDictionary() -> [String: Any]
 }

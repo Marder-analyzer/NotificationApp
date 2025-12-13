@@ -17,25 +17,38 @@ struct NotificationTypeSelectionView: View {
                 .bold()
                 .foregroundStyle(.white.opacity(0.7))
             
-            Picker(selection: $viewModel.selectedType) {
-                ForEach(NotificationType.allCases, id: \.self) { type in
-                    HStack {
-                        Image(systemName: type.iconName)
-                            .foregroundColor(type.color)
-                        Text(type.rawValue)
-                            .foregroundStyle(.white)
+            Menu {
+                Picker("Tür Seçiniz", selection: $viewModel.selectedType) {
+                    ForEach(NotificationType.allCases, id: \.self) { type in
+                        Label(type.rawValue, systemImage: type.iconName)
+                            .tag(type)
                     }
-                    .tag(type)
                 }
             } label: {
-                Text("Tür Seçiniz")
-                    .foregroundColor(.white)
+                HStack {
+                    Image(systemName: viewModel.selectedType.iconName)
+                        .foregroundColor(viewModel.selectedType.color)
+                        .font(.title3)
+                    
+                    Text(viewModel.selectedType.rawValue)
+                        .foregroundStyle(.white)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.up.chevron.down")
+                        .foregroundStyle(.white.opacity(0.5))
+                        .font(.caption)
+                }
+                .padding()
+                .background(Color.hexConverter(hexString: "#1c2630"))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                )
             }
-            .pickerStyle(NavigationLinkPickerStyle())
-            .padding()
-            .background(Color.hexConverter(hexString:"#1c2630"))
-            .overlay(RoundedRectangle(cornerRadius: 10)
-                .stroke(.white.opacity(0.2), lineWidth: 1))
+            
         }
     }
 }

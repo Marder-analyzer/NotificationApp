@@ -12,12 +12,12 @@ struct NotificationDetailHeaderView: View {
     // MARK: - Değişkenler
     let notification: NotificationItem
     @Binding var currentStatus: NotificationStatus
-    let userRole: String = "Admin"
+    var userRole: String
     
     var body: some View {
         HStack(spacing: 15) {
             
-            StatusBadgeView(status: currentStatus, role: userRole) 
+            StatusBadgeView(status: $currentStatus, role: userRole) 
             
             HStack(spacing: 6) {
                 Image(systemName: notification.type.iconName )
@@ -39,7 +39,10 @@ struct NotificationDetailHeaderView: View {
 }
 
 #Preview {
-    NotificationDetailView(notification: NotificationItem(
+    let repo = RepositoryFactory().makeNotificationRepository()
+    let vm = GenericViewModel(repository: repo)
+    
+    NotificationDetailView(vm: vm, notification: NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",

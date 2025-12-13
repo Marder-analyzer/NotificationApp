@@ -8,18 +8,24 @@
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct MapView: View {
-    @StateObject private var viewModel = MapViewModel()
-    @StateObject private var locationManager = LocationManager() 
-    
+struct MapView<R: Repository>: View where R.Entity == NotificationItem {
 
-    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    @ObservedObject var vm: GenericViewModel<R>
+    @StateObject private var locationManager = LocationManager()
+    
+    @State private var cameraPosition: MapCameraPosition =
+        .region(
+            MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 39.0, longitude: 35.0),
+                span: MKCoordinateSpan(latitudeDelta: 15, longitudeDelta: 15)
+            )
+        )
     @State private var currentRegion: MKCoordinateRegion?
     
-    @State private var selectedNotificationID: UUID?
+    @State private var selectedNotificationID: String?
     
     var selectedNotification: NotificationItem? {
-        viewModel.notifications.first { $0.id == selectedNotificationID }
+        vm.notificationModel.first { $0.id == selectedNotificationID }
     }
     
     var body: some View {
@@ -28,7 +34,7 @@ struct MapView: View {
             Map(position: $cameraPosition, selection: $selectedNotificationID) {
                 UserAnnotation()
                 
-                ForEach(viewModel.notifications) { item in
+                ForEach(vm.notificationModel.filter { $0.locationCoordinate != nil }) { item in
                     if let coordinate = item.locationCoordinate {
                         Marker(item.title, systemImage: item.type.iconName, coordinate: coordinate)
                             .tint(item.type.color)
@@ -43,7 +49,7 @@ struct MapView: View {
                 MapCompass()
             }
             .onAppear {
-                viewModel.fetchNotifications()
+                vm.loadNotifications()
                 locationManager.requestLocation()
             }
 
@@ -53,7 +59,7 @@ struct MapView: View {
             }
             
             if let selected = selectedNotification {
-                NotificationMapCardView(notification: selected) {
+                NotificationMapCardView(notification: selected, vm: vm) {
                     withAnimation(.spring) {
                         selectedNotificationID = nil
                     }
@@ -95,7 +101,6 @@ struct MapView: View {
         }
     }
     
-    // MARK: - Yardımcı Görünümler & Fonksiyonlar
     private func zoomButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
@@ -124,12 +129,28 @@ struct MapView: View {
     }
     
     private func goToMyLocation() {
-        withAnimation {
-            cameraPosition = .userLocation(fallback: .automatic)
+        guard let location = locationManager.userLocation else {
+            locationManager.requestLocation()
+            return
+        }
+
+        let region = MKCoordinateRegion(
+            center: location,
+            span: MKCoordinateSpan(
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01
+            )
+        )
+
+        withAnimation(.easeInOut(duration: 0.6)) {
+            cameraPosition = .region(region)
         }
     }
+
 }
 
 #Preview {
-    MapView()
+    let repo = RepositoryFactory().makeNotificationRepository()
+    let vm = GenericViewModel(repository: repo)
+    MapView(vm: vm)
 }

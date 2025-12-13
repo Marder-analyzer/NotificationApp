@@ -8,12 +8,25 @@
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct NotificationDetailView: View {
+struct NotificationDetailView<R: Repository>: View where R.Entity == NotificationItem {
+    
     // MARK: - Değişkenler
+    @ObservedObject var vm: GenericViewModel<R>
     let notification: NotificationItem
     @State private var isFollowed: Bool = false
-    @State private var editedStatus: NotificationStatus = .open
+    @State private var editedStatus: NotificationStatus
     @Environment(\.dismiss) var dismiss
+    var userRole: String = "Admin"
+    
+    private var hasChanges: Bool {
+        editedStatus != notification.status
+    }
+    
+    init(vm: GenericViewModel<R>, notification: NotificationItem) {
+        self.vm = vm
+        self.notification = notification
+        _editedStatus = State(initialValue: notification.status)
+    }
     
     var body: some View {
         ZStack {
@@ -39,11 +52,15 @@ struct NotificationDetailView: View {
                             .bold()
                         
                         Spacer()
-                        
-                        NotificationSaveChangesButton {
-                            print("a")
+                        if userRole == "Admin" {
+                            NotificationSaveChangesButton {
+                                saveChanges()
+                            }
+                            .disabled(!hasChanges)
+                            .opacity(hasChanges ? 1.0 : 0.4)
+                        } else {
+                            NotificationFollowButton()
                         }
-
                     }
                     .padding(.horizontal)
                     
@@ -57,7 +74,7 @@ struct NotificationDetailView: View {
                         VStack(spacing: 10) {
                             NotificationDetailHeaderView(
                                 notification: notification,
-                                currentStatus: $editedStatus
+                                currentStatus: $editedStatus, userRole: userRole
                             )
                             
                             NotificationDetailContentView(notification: notification)
@@ -74,10 +91,22 @@ struct NotificationDetailView: View {
             .navigationBarHidden(true)
         }
     }
+    
+    private func saveChanges() {
+        guard hasChanges else { return }
+        
+        var updatedNotification = notification
+        updatedNotification.status = editedStatus
+
+        vm.update(updatedNotification)
+    }
 }
 
 #Preview {
-    NotificationDetailView(notification:  NotificationItem(
+    let repo = RepositoryFactory().makeNotificationRepository()
+    let vm = GenericViewModel(repository: repo)
+    
+    NotificationDetailView(vm: vm, notification:  NotificationItem(
         type: .security,
         title: "Kütüphane Arkası Şüpheli Paket",
         description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",

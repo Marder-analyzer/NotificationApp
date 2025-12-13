@@ -18,42 +18,26 @@ struct CreateNotificationView: View {
             Color.hexConverter(hexString: "#13181f")
                 .ignoresSafeArea()
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    ZStack {
-                        Text("Yeni Bildirim Oluştur")
-                            .foregroundStyle(.white)
-                            .font(.title2)
-                            .bold()
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(spacing: 24) {
+                        headerView
                         
-                        HStack {
-                            if showBackButton {
-                                Button {
-                                    dismiss()
-                                } label: {
-                                    Image(systemName: "chevron.left")
-                                        .tint(.white)
-                                        .bold()
-                                }
-                            }
-                            
-                            Spacer()
-                        }
+                        Divider()
+                            .background(.white.opacity(0.2))
+                        
+                        NotificationDetailsView(viewModel: viewModel)
+                        
+                        NotificationTypeSelectionView(viewModel: viewModel)
                     }
-                    
-                    Divider()
-                        .background(.white.opacity(0.2))
-                    
-                    NotificationDetailsView(viewModel: viewModel)
-                    
-                    NotificationTypeSelectionView(viewModel: viewModel)
+                    .padding(.horizontal)
                     
                     NotificationEvidenceView(viewModel: viewModel)
+                        .padding(.vertical, 24)
                     
                     NotificationSubmitButtonView(viewModel: viewModel)
+                        .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
-            .navigationBarHidden(true)
             .scrollIndicators(.never)
             .onTapGesture {
                 hideKeyboard()
@@ -62,6 +46,28 @@ struct CreateNotificationView: View {
                 Button("Tamam") { dismiss() }
             } message: {
                 Text(viewModel.alertMessage)
+            }
+        }
+    }
+    
+    private var headerView: some View {
+        ZStack {
+            Text("Yeni Bildirim Oluştur")
+                .foregroundStyle(.white)
+                .font(.title2)
+                .bold()
+            
+            HStack {
+                if showBackButton {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .tint(.white)
+                            .bold()
+                    }
+                }
+                Spacer()
             }
         }
     }

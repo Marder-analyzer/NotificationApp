@@ -20,9 +20,8 @@ struct CustomSearchBar: View {
             
             TextFieldComp(title: nil, placeholder: "Bildirimlerde ara...", configuration: configuration.homeConfiguration)
                 .onCodeCompletion { text in
-                    
+                    self.text = text
                 }
-                .accentColor(.white)
             
             if !text.isEmpty {
                 Button(action: { text = "" }) {

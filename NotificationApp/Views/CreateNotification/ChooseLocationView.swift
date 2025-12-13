@@ -20,15 +20,28 @@ struct ChooseLocationView: View {
     @State private var searchText: String = ""
     @FocusState private var isFocused: Bool
     @State private var isGeocoding: Bool = false
-
+    
+    @State private var cameraPosition: MapCameraPosition
+    @State private var currentRegion: MKCoordinateRegion?
+    
     @State private var isPinLifted: Bool = false
     
     let configuration = LocationConfiguration()
+    
+    init(region: Binding<MKCoordinateRegion>, isLocationSelected: Binding<Bool>) {
+        _region = region
+        _isLocationSelected = isLocationSelected
+
+        _cameraPosition = State(
+            initialValue: .region(region.wrappedValue)
+        )
+    }
     
     // MARK: - Main Body
     var body: some View {
         ZStack {
             mapLayer
+            
             
             centerPin
             
@@ -42,12 +55,38 @@ struct ChooseLocationView: View {
                 confirmButton
             }
         }
+        .onAppear {
+            if !isLocationSelected { locationManager.requestLocation() }
+        }
+        .onChange(of: locationManager.userLocation) { _,location in
+            guard let location else { return }
+
+            let region = MKCoordinateRegion(
+                center: location,
+                span: MKCoordinateSpan(
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01
+                )
+            )
+
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = .region(region)
+                self.region = region
+            }
+
+            getAddressFromCoordinates(location)
+        }
     }
     
     private var mapLayer: some View {
-        Map(coordinateRegion: $region, showsUserLocation: true)
-            .edgesIgnoringSafeArea(.all)
-            .onAppear { locationManager.requestLocation() }
+        Map(position: $cameraPosition) {
+            UserAnnotation()
+        }
+        .onMapCameraChange { context in
+            currentRegion = context.region
+            region = context.region
+        }
+        .ignoresSafeArea()
     }
     
     private var centerPin: some View {
@@ -99,14 +138,12 @@ struct ChooseLocationView: View {
                 
                 TextFieldComp(title: nil,
                               placeholder: "Konum Ara",
-                              text: $searchText,
                               configuration: configuration.chooseLocationConfiguration)
                 .onCodeCompletion { text in
                     searchViewModel.searchQuery = text
                 }
                 .focused($isFocused)
-                .accentColor(.white)
-                
+
                 if !searchText.isEmpty {
                     Button {
                         clearSearch()
@@ -215,22 +252,27 @@ struct ChooseLocationView: View {
     }
     
     private func zoomIn() {
+        guard var region = currentRegion else { return }
         withAnimation {
             region.span.latitudeDelta *= 0.5
             region.span.longitudeDelta *= 0.5
+            cameraPosition = .region(region)
         }
     }
-    
+
     private func zoomOut() {
+        guard var region = currentRegion else { return }
         withAnimation {
-            region.span.latitudeDelta *= 2.0
-            region.span.longitudeDelta *= 2.0
+            region.span.latitudeDelta *= 2
+            region.span.longitudeDelta *= 2
+            cameraPosition = .region(region)
         }
     }
     
     private func goToMyLocation() {
+        isFocused = false
+
         if let location = locationManager.userLocation {
-            isFocused = false
             moveToLocation(location)
             getAddressFromCoordinates(location)
         } else {
@@ -250,11 +292,13 @@ struct ChooseLocationView: View {
     }
     
     private func moveToLocation(_ coordinate: CLLocationCoordinate2D) {
-        withAnimation {
-            region = MKCoordinateRegion(
+        withAnimation(.easeInOut) {
+            let newRegion = MKCoordinateRegion(
                 center: coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
             )
+            cameraPosition = .region(newRegion)
+            region = newRegion
         }
     }
     

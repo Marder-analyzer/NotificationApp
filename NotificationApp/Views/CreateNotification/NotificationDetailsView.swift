@@ -20,7 +20,7 @@ struct NotificationDetailsView: View {
                     .bold()
                     .foregroundStyle(.white.opacity(0.7))
                 
-                TextFieldComp(title: nil, placeholder: "Rapor başlığını girin", text: $viewModel.title, configuration: configuration.createNotificationTitleConfiguration)
+                TextFieldComp(title: nil ,placeholder: "Rapor başlığını girin", configuration: configuration.createNotificationTitleConfiguration)
                     .onCodeCompletion { text in
                         viewModel.title = text
                     }
@@ -32,11 +32,29 @@ struct NotificationDetailsView: View {
                     .bold()
                     .foregroundStyle(.white.opacity(0.7))
                 
-                TextFieldComp(title: nil,
-                              placeholder: "Olay hakkında detaylı bilgi verin",
-                              text: $viewModel.description,
-                              configuration: configuration.descriptionConfiguration)
-                .onCodeCompletion { text in viewModel.description = text }
+                ZStack(alignment: .topLeading) {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.hexConverter(hexString: "#1c2630"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                    
+                    if viewModel.description.isEmpty {
+                        Text("Olay hakkında detaylı bilgi verin")
+                            .foregroundStyle(Color.hexConverter(hexString: "#8e8e93"))
+                            .padding(.top, 18)
+                            .padding(.leading, 15)
+                    }
+                    
+                    TextEditor(text: $viewModel.description)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
+                        .foregroundStyle(.white)
+                        .accentColor(.white)
+                        .padding(10)
+                }
+                .frame(height: 150)
             }
         }
     }

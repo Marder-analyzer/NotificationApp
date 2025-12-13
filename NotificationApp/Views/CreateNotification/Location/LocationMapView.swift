@@ -12,7 +12,7 @@ struct LocationMapView: View {
     @Binding var region: MKCoordinateRegion
     @State private var navigateToMap = false
     @StateObject private var locationManager = LocationManager()
-
+    
     @State private var isLocationSelected = false
     var onRegionChange: ((CLLocationCoordinate2D) -> Void)? = nil
     
@@ -21,17 +21,23 @@ struct LocationMapView: View {
         ZStack(alignment: .center) {
             mapLayer
             
-            if isLocationSelected {
-                selectedPinMarker
-            } else {
+            if !isLocationSelected  {
                 placeholderOverlay
             }
         }
         .frame(height: 250)
         .clipShape(.rect(cornerRadius: 20))
-        .onTapGesture {
-            if isLocationSelected { navigateToMap = true }
-        }
+        .overlay(
+            Group {
+                if isLocationSelected {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            navigateToMap = true
+                        }
+                }
+            }
+        )
         .navigationDestination(isPresented: $navigateToMap) {
             ChooseLocationView(region: $region, isLocationSelected: $isLocationSelected)
                 .navigationBarHidden(true)
@@ -43,19 +49,18 @@ struct LocationMapView: View {
                 }
         }
     }
-
+    
     private var mapLayer: some View {
-        Map(coordinateRegion: $region, showsUserLocation: true)
-            .edgesIgnoringSafeArea(.all)
-            .disabled(isLocationSelected)
-            .onAppear {
-                if !isLocationSelected { locationManager.requestLocation() }
+        Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: isLocationSelected ? [MapPinItem(coordinate: region.center)] : []) { item in
+            MapMarker(coordinate: item.coordinate, tint: .red)
+        }
+        .edgesIgnoringSafeArea(.all)
+        .disabled(false)
+        .onChange(of: locationManager.userLocation) { newLocation in
+            if !isLocationSelected, let location = newLocation {
+                updateRegion(to: location)
             }
-            .onChange(of: locationManager.userLocation) { newLocation in
-                if !isLocationSelected, let location = newLocation {
-                    updateRegion(to: location)
-                }
-            }
+        }
     }
     
     private var placeholderOverlay: some View {
@@ -83,14 +88,6 @@ struct LocationMapView: View {
         }
     }
     
-    private var selectedPinMarker: some View {
-        Image(systemName: "mappin.fill")
-            .font(.largeTitle)
-            .foregroundColor(.red)
-            .padding(.bottom, 20)
-            .shadow(radius: 4)
-    }
-    
     private func updateRegion(to coordinate: CLLocationCoordinate2D) {
         withAnimation {
             region = MKCoordinateRegion(
@@ -100,6 +97,11 @@ struct LocationMapView: View {
         }
         onRegionChange?(coordinate)
     }
+}
+
+struct MapPinItem: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
 }
 
 #Preview {

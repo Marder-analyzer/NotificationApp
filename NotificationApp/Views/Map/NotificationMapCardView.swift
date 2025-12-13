@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-struct NotificationMapCardView: View {
+struct NotificationMapCardView<R: Repository>: View where R.Entity == NotificationItem {
+
     let notification: NotificationItem
+    let vm: GenericViewModel<R>
     var onClose: () -> Void
     
     var body: some View {
@@ -63,7 +65,7 @@ struct NotificationMapCardView: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: NotificationDetailView(notification: notification)
+                NavigationLink(destination: NotificationDetailView(vm: vm, notification: notification)
                     .toolbar(.hidden, for: .tabBar)) {
                     HStack {
                         Text("Detayı Gör")
@@ -91,6 +93,9 @@ struct NotificationMapCardView: View {
 }
 
 #Preview {
+    let repo = RepositoryFactory().makeNotificationRepository()
+    let vm = GenericViewModel(repository: repo)
+    
     NotificationMapCardView(notification: NotificationItem(
         type: .technical,
         title: "Kütüphane Arkası Şüpheli Paket",
@@ -101,7 +106,7 @@ struct NotificationMapCardView: View {
         address: "Merkezi Yemekhane Önü, Kampüs",
         coordinate: "",
         imageUrls: [""]
-    ), onClose: {
+    ),vm: vm, onClose: {
         
     })
 }

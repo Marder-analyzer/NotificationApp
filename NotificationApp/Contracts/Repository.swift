@@ -8,12 +8,19 @@
 import Foundation
 
 protocol Repository {
-	associatedtype Entity
-	func fetch() async throws -> [Entity]
+    associatedtype Entity: Identifiable
+    func fetch() async throws -> [Entity]
+    func save(_ entity: Entity) async throws
+    func delete(_ entity: Entity) async throws
+    func update(_ entity: Entity) async throws
 }
 
 protocol Cache {
-	associatedtype Value
-	func save(_ value: [Value]) async
-	func get() async -> [Value]
+    associatedtype Value: Identifiable
+    
+    func get() async -> [Value]
+    func save(_ values: [Value]) async
+    func insert(_ value: Value) async
+    func remove(_ id: Value.ID) async       
+    func update(_ value: Value) async
 }
