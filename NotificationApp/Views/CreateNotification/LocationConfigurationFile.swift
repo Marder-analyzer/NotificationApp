@@ -16,11 +16,13 @@ struct LocationConfiguration {
                                                                                               textColor: .white,
                                                                                               placeHolderColor: Color.hexConverter(hexString: "#8e8e93"),
                                                                                               height: 50,
-                                                                                              isSecure: false)
+                                                                                              isSecure: false,
+                                                                                              accentColor: Color.white)
     
     
     let chooseLocationConfiguration: TextFieldConfiguration = TextFieldConfiguration(textColor: .white,
-                                                                                     placeHolderColor: Color.hexConverter(hexString: "#8e8e93"))
+                                                                                     placeHolderColor: Color.hexConverter(hexString: "#8e8e93"),
+                                                                                     accentColor: Color.white)
     
     let descriptionConfiguration = TextFieldConfiguration(
         borderRadius: 10,
@@ -29,7 +31,6 @@ struct LocationConfiguration {
          backgroundColor: Color.hexConverter(hexString:"#1c2630"),
          textColor: .white,
          placeHolderColor: Color.hexConverter(hexString: "#8e8e93"),
-         isSecure: false,
-         isMultiline: true
+         isSecure: false 
     )
 }

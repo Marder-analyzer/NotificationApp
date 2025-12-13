@@ -55,19 +55,21 @@ enum NotificationStatus: String, Codable, CaseIterable {
 }
 
 // MARK: - Bildirim Veri Modeli (Model)
-class NotificationItem: Codable, Identifiable, FirebaseSaveable {
-	let id = UUID()
+struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
+    var id: String
 	let type: NotificationType
 	let title: String
-	let description: String
+	var description: String
 	let date: String?
-	let status: NotificationStatus
+	var status: NotificationStatus
 	let userName: String?
 	let address: String
 	let coordinate: String
 	let imageUrls: [String]?
-	
-    init(type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?) {
+    var isFollowed: Bool = false
+    
+    init(id: String = UUID().uuidString, type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?, isFollowed: Bool = false) {
+        self.id = id
 		self.type = type
 		self.title = title
 		self.description = description
@@ -77,7 +79,12 @@ class NotificationItem: Codable, Identifiable, FirebaseSaveable {
 		self.address = address
 		self.coordinate = coordinate
 		self.imageUrls = imageUrls
+        self.isFollowed = isFollowed
 	}
+    
+    static func == (lhs: NotificationItem, rhs: NotificationItem) -> Bool {
+        return lhs.id == rhs.id && lhs.status == rhs.status && lhs.isFollowed == rhs.isFollowed
+    }
     
     var locationCoordinate: CLLocationCoordinate2D? {
         let components = coordinate.split(separator: ",")
@@ -113,7 +120,7 @@ struct SelectedImage: Identifiable {
 extension NotificationItem {
 	func toDictionary() -> [String: Any] {
 		return [
-			"id": id.uuidString,
+			"id": id,
 			"type": type.rawValue,
 			"title": title,
 			"description": description,
@@ -122,7 +129,8 @@ extension NotificationItem {
 			"userName": userName,
 			"address": address,
 			"coordinate": coordinate,
-			"imageUrls": imageUrls
+			"imageUrls": imageUrls,
+            "isFollowed" : isFollowed
 		]
 	}
 }

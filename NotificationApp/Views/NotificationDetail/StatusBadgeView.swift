@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StatusBadgeView: View {
-    @State var status: NotificationStatus
+    @Binding var status: NotificationStatus
     let role: String
     
     var body: some View {
@@ -61,5 +61,5 @@ struct StatusBadgeView: View {
 }
 
 #Preview {
-    StatusBadgeView(status: .open, role: "Admin")
+    StatusBadgeView(status: .constant(.open), role: "Admin")
 }

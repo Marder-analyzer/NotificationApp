@@ -12,5 +12,7 @@ struct HomeConfiguration {
                                                                            
                                                                            placeHolderColor: Color.hexConverter(hexString: "#8e8e93"),
                                                                            
-                                                                           isSecure: false)
+                                                                           isSecure: false,
+                                                                           
+                                                                           accentColor: Color.white)
 }

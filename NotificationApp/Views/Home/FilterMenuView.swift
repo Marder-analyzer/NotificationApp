@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct FilterMenuView: View {
-    // MARK: - Değişkenler
-    @ObservedObject var viewModel: HomeViewModel
+struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
+    
+    @ObservedObject var viewModel: GenericViewModel<R>
     
     var body: some View {
         Menu {
@@ -29,7 +29,7 @@ struct FilterMenuView: View {
             
             if viewModel.currentUserRole == "Admin" {
                 Toggle(isOn: $viewModel.showOnlyMyDepartment) {
-                    Label("Yetki Alanım (\(viewModel.currentUserDepartment.rawValue))", systemImage: "building.shield.fill")
+                    Label("Yetki Alanım (\(viewModel.currentUserDepartment.rawValue))", systemImage: viewModel.currentUserDepartment.iconName)
                 }
             }
         } label: {
@@ -38,18 +38,21 @@ struct FilterMenuView: View {
                 .frame(width: 24, height: 24)
                 .foregroundColor(isFilterActive ? .white : Color.hexConverter(hexString: "#8e8e93"))
                 .padding(10)
-                .background(isFilterActive ? .blue : Color.hexConverter(hexString:"#1c2630"))
+                .background(isFilterActive ? .blue : Color.hexConverter(hexString: "#1c2630"))
                 .cornerRadius(10)
         }
     }
     
     private var isFilterActive: Bool {
         return viewModel.selectedType != nil ||
-        viewModel.showOnlyFollowed ||
-        viewModel.showOnlyMyDepartment
+               viewModel.showOnlyFollowed ||
+               viewModel.showOnlyMyDepartment
     }
 }
 
 #Preview {
-    FilterMenuView(viewModel: HomeViewModel())
+    let repo = RepositoryFactory().makeNotificationRepository()
+    let viewModel = GenericViewModel(repository: repo)
+    
+    return FilterMenuView(viewModel: viewModel)
 }

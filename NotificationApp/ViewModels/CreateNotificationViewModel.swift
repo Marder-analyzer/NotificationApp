@@ -19,14 +19,22 @@ class CreateNotificationViewModel: ObservableObject {
     @Published var description: String = ""
     @Published var useCurrentLocation: Bool = true
     
+    @Published var selectedItems: [PhotosPickerItem] = []
+    @Published var selectedImages: [UIImage] = []
+    
     @Published var selectedItem: PhotosPickerItem? = nil
     @Published var selectedImage: UIImage? = nil
+    @Published var isLocationSelected: Bool = false
     
     @Published var isSubmitting: Bool = false
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
     @Published var showCamera: Bool = false
-    @Published var address: String = "Konum seçiliyor..."
+    @Published var showPicker: Bool = false
+    @Published var address: String = ""
+    
+    @Published var showCameraPermissionAlert = false
+    @Published var cameraPermissionMessage = ""
     
     @Published var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
@@ -41,10 +49,26 @@ class CreateNotificationViewModel: ObservableObject {
     // MARK: - Fonksiyonlar
     @MainActor
     func convertPhoto() async {
-        guard let item = selectedItem else { return }
-        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
-        guard let uiImage = UIImage(data: data) else { return }
-        self.selectedImage = uiImage
+        selectedImages.removeAll()
+        for item in selectedItems {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let uiImage = UIImage(data: data) {
+                selectedImages.append(uiImage)
+            }
+        }
+        
+        if let item = selectedItem {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let uiImage = UIImage(data: data) {
+                self.selectedImage = uiImage
+                selectedImages.append(uiImage)
+            }
+        }
+    }
+    
+    @MainActor
+    func convertPhotos() async {
+        await convertPhoto()
     }
     
     func submitNotification(completion: @escaping () -> Void) {
@@ -60,29 +84,40 @@ class CreateNotificationViewModel: ObservableObject {
             self.showAlert = true
             return
         }
+        if !isLocationSelected {
+            self.alertMessage = "Lütfen haritadan bir konum seçiniz."
+            self.showAlert = true
+            return
+        }
         
         isSubmitting = true
         
         let currentCoordinate = "\(region.center.latitude), \(region.center.longitude)"
         
-        if let image = selectedImage {
-            uploadImage(image) { [weak self] imageUrl in
-                guard let self = self else { return }
-                
-                self.createAndSaveNotification(coordinate: currentCoordinate, imageUrl: imageUrl, completion: completion)
+        Task {
+            var imageUrls: [String] = []
+            
+            if !selectedImages.isEmpty {
+                imageUrls = await uploadImages(images: selectedImages)
             }
-        } else {
-            createAndSaveNotification(coordinate: currentCoordinate, imageUrl: nil, completion: completion)
+            else if let singleImage = selectedImage {
+                imageUrls = await uploadImages(images: [singleImage])
+            }
+
+            await createAndSaveNotification(
+                coordinate: currentCoordinate,
+                imageUrls: imageUrls,
+                completion: completion
+            )
         }
     }
     
-    private func createAndSaveNotification(coordinate: String, imageUrl: String?, completion: @escaping () -> Void) {
+    private func createAndSaveNotification(coordinate: String, imageUrls: [String], completion: @escaping () -> Void) {
+        
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "tr_TR")
         formatter.dateFormat = "d MMMM yyyy HH:mm"
-        
         let dateString = formatter.string(from: Date())
-        let images = imageUrl != nil ? [imageUrl!] : []
         
         let newNotification = NotificationItem(
             type: selectedType,
@@ -93,37 +128,61 @@ class CreateNotificationViewModel: ObservableObject {
             userName: Auth.auth().currentUser?.email ?? "",
             address: self.address,
             coordinate: coordinate,
-            imageUrls: images
+            imageUrls: imageUrls,
+            isFollowed: false
         )
         
-        NetworkDataSource().save(newNotification) {
-            DispatchQueue.main.async {
-                self.isSubmitting = false
-                self.alertMessage = "Bildirim başarıyla oluşturuldu!"
-                self.showAlert = true
+        Task {
+            do {
+                try await NetworkDataSource().save(newNotification)
                 
-                self.title = ""
-                self.description = ""
-                self.selectedImage = nil
-                self.selectedItem = nil
-                self.address = ""
-                
-                completion()
+                await MainActor.run {
+                    self.isSubmitting = false
+                    self.alertMessage = "Bildirim başarıyla oluşturuldu!"
+                    self.showAlert = true
+                    
+                    self.title = ""
+                    self.description = ""
+                    self.selectedImage = nil
+                    self.selectedImages = []
+                    self.selectedItems = []
+                    self.selectedItem = nil
+                    self.address = ""
+                    self.isLocationSelected = false
+                    
+                    completion()
+                }
+            } catch {
+                await MainActor.run {
+                    self.isSubmitting = false
+                    self.alertMessage = "Hata oluştu: \(error.localizedDescription)"
+                    self.showAlert = true
+                }
             }
         }
     }
     
-    private func uploadImage(_ image: UIImage, completion: @escaping (String?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.5) else {
-            completion(nil)
-            return
-        }
-        
+    private func uploadImages(images: [UIImage]) async -> [String] {
+        var uploadedUrls: [String] = []
         let network = NetworkDataSource<NotificationItem>()
         
-        network.uploadImage(data: imageData) { urlString in
-            completion(urlString)
+        await withTaskGroup(of: String?.self) { group in
+            for image in images {
+                if let data = image.jpegData(compressionQuality: 0.5) {
+                    group.addTask {
+                        return try? await network.uploadImage(data: data)
+                    }
+                }
+            }
+            
+            for await result in group {
+                if let url = result {
+                    uploadedUrls.append(url)
+                }
+            }
         }
+        
+        return uploadedUrls
     }
     
     @MainActor

@@ -12,26 +12,18 @@ struct TextFieldComp: View {
 	
 	@State var title: String?
 	@State var placeholder: String?
-    var externalText: Binding<String>?
-    
-    @State private var internalText: String = ""
+    @State private var text: String = ""
     
 	@State private var debounceTask: Task<Void, Never>?
 	private var onCodeCompletion: ((String) -> Void)?
 	
 	let configuration: TextFieldConfiguration
-	
-    private var textBinding: Binding<String> {
-        return externalText ?? $internalText
-    }
     
 	init(title: String?,
 			 placeholder: String? = nil,
-         text: Binding<String>? = nil,
 			 configuration: TextFieldConfiguration) {
 		self.title = title
 		self.placeholder = placeholder
-        self.externalText = text
 		self.configuration = configuration
 	}
 	
@@ -44,20 +36,14 @@ struct TextFieldComp: View {
 			}
 			
 			if configuration.isSecure ?? false {
-				SecureField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
+				SecureField("", text: $text, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
 					.textFieldConfiguration(configuration)
             } else {
-                if configuration.isMultiline ?? false {
-                    TextField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray), axis: .vertical)
-                        .lineLimit(4...10)
-                        .textFieldConfiguration(configuration)
-                } else {
-                    TextField("", text: textBinding, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
-                        .textFieldConfiguration(configuration)
-                }
+                TextField("", text: $text, prompt: Text(placeholder ?? "").foregroundStyle(configuration.placeHolderColor ?? Color.gray))
+                    .textFieldConfiguration(configuration)
             }
-		}
-		.onChange(of: textBinding.wrappedValue, { oldValue, newValue in
+        }
+        .onChange(of: self.text, { oldValue, newValue in
 			debounceTask?.cancel()
 			
 			debounceTask = Task {

@@ -94,7 +94,7 @@ struct LoginContainerView: View {
 				}
 			}
 			.navigationDestination(isPresented: $navigateToHome) {
-				HomeView()
+                MainTabView()
 			}
 		}
 		

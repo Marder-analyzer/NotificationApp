@@ -15,6 +15,7 @@ struct NotificationEvidenceView: View {
             PhotoSelectionView(viewModel: viewModel)
             
             LocationSelectionView(viewModel: viewModel)
+                .padding(.horizontal)
         }
         .sheet(isPresented: $viewModel.showCamera) {
             ImagePicker(image: $viewModel.selectedImage, sourceType: .camera)

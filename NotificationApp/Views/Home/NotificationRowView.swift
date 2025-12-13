@@ -34,35 +34,43 @@ struct NotificationRowView: View {
 }
 
 struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationItem {
-	@StateObject private var vm: GenericViewModel<R>
-	
-	init(repository: R) {
-		_vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
-	}
+    @ObservedObject var vm: GenericViewModel<R>
 	
     var body: some View {
         
         ScrollView {
             if vm.isLoading {
-                
+                ProgressView()
+                    .tint(.white)
+                    .padding(.top, 50)
+            } else if vm.homeFilteredNotifications.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "bell.slash")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                    Text("Gösterilecek bildirim bulunamadı.")
+                        .foregroundColor(.gray)
+                }
+                .padding(.top, 50)
             } else {
                 LazyVStack(spacing: 16) {
-                    ForEach(vm.notificationModel) { item in
-                        NavigationLink(destination: NotificationDetailView(notification: item)
-                            .toolbar(.hidden, for: .tabBar)) {
+                    ForEach(vm.homeFilteredNotifications) { item in
+                        NavigationLink {
+                            NotificationDetailView(
+                                vm: vm,
+                                notification: item
+                            )
+                            .toolbar(.hidden, for: .tabBar)
+                        } label: {
                             NotificationRowView(notification: item)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal)
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.top, 10)
+                .padding(.bottom, 10)
             }
         }
         .scrollIndicators(.never)
         .background(Color.clear)
-        .task {
-            vm.loadNotifications()
-        }
     }
 }

@@ -9,16 +9,12 @@ import Foundation
 import FirebaseDatabase
 import FirebaseStorage
 
-final class NetworkDataSource<Entity: Decodable & FirebaseSaveable> {
-    //	let url: URL
-    //
-    //	init(url: URL) {
-    //		self.url = url
-    //	}
+final class NetworkDataSource<Entity: Codable & FirebaseSaveable & Identifiable> {
     
+    private let ref = Database.database().reference().child("notifications")
+    
+    // MARK: - FETCH
     func fetch() async throws -> [Entity] {
-        let ref = Database.database().reference().child("notifications")
-        
         return try await withCheckedThrowingContinuation { continuation in
             ref.observeSingleEvent(of: .value) { snapshot in
                 guard let dict = snapshot.value as? [String: Any] else {
@@ -27,9 +23,18 @@ final class NetworkDataSource<Entity: Decodable & FirebaseSaveable> {
                 }
                 
                 do {
-                    let jsonData = try JSONSerialization.data(withJSONObject: dict)
-                    let decoded = try JSONDecoder().decode([String: Entity].self, from: jsonData)
-                    continuation.resume(returning: Array(decoded.values))
+                    var items: [Entity] = []
+                    
+                    for (key, value) in dict {
+                        var itemData = value as! [String: Any]
+                        itemData["id"] = key
+                        
+                        let data = try JSONSerialization.data(withJSONObject: itemData)
+                        let item = try JSONDecoder().decode(Entity.self, from: data)
+                        items.append(item)
+                    }
+                    
+                    continuation.resume(returning: items)
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -37,44 +42,59 @@ final class NetworkDataSource<Entity: Decodable & FirebaseSaveable> {
         }
     }
     
-    func save(_ item: Entity, completion: @escaping () -> ()) {
-        let ref = Database.database().reference()
-        
-        let notificationRef = ref.child("notifications").child(item.id.uuidString)
-        
-        notificationRef.setValue(item.toDictionary()) { error, _ in
-            if let error = error {
-                print("Bildirim kaydedilirken hata: \(error.localizedDescription)")
-            } else {
-                completion()
+    // MARK: - SAVE (Create)
+    func save(_ item: Entity) async throws {
+        let itemRef = ref.child(item.id)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.setValue(item.toDictionary()) { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
             }
         }
     }
     
-    func uploadImage(data: Data, completion: @escaping (String?) -> Void) {
+    // MARK: - UPDATE
+    func update(_ item: Entity) async throws {
+        let itemRef = ref.child(item.id)
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.updateChildValues(item.toDictionary()) { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - DELETE
+    func delete(_ item: Entity) async throws {
+        let itemRef = ref.child(item.id)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.removeValue { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - IMAGE UPLOAD
+    func uploadImage(data: Data) async throws -> String? {
         let filename = UUID().uuidString + ".jpg"
-        
         let storageRef = Storage.storage().reference().child("notification_images/\(filename)")
-        
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         
-        storageRef.putData(data, metadata: metadata) { metadata, error in
-            if let error = error {
-                print("Resim yüklenirken hata oluştu: \(error.localizedDescription)")
-                completion(nil)
-                return
-            }
-            
-            storageRef.downloadURL { url, error in
-                if let error = error {
-                    print("Download URL alınamadı: \(error.localizedDescription)")
-                    completion(nil)
-                    return
-                }
-                
-                completion(url?.absoluteString)
-            }
-        }
+        _ = try await storageRef.putDataAsync(data, metadata: metadata)
+        let url = try await storageRef.downloadURL()
+        return url.absoluteString
     }
 }
