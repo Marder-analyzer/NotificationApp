@@ -26,6 +26,16 @@ final class FirebaseAuthRepository: AuthRepository {
 		return AuthUser(id: user.uid, email: user.email)
 	}
 	
+	func resetPassword(email: String, completion: @escaping (String?) -> Void) {
+		Auth.auth().sendPasswordReset(withEmail: email) { error in
+				 if let error = error {
+					 completion(error.localizedDescription)
+				 } else {
+						completion(nil)
+				 }
+		 }
+	}
+	
 	func logout() async throws {
 		do {
 			try Auth.auth().signOut()

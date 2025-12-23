@@ -21,12 +21,8 @@ struct NotificationApp: App {
 	
 	var body: some Scene {
 		WindowGroup {
-			if let user = authCoordinator.user {
-				MainTabView()
-			} else {
-				LoginContainerView()
-					.environmentObject(authCoordinator)
-			}
+			LoginContainerView()
+				.environmentObject(authCoordinator)
 			
 		}
 	}

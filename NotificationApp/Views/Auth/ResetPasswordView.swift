@@ -1,14 +1,15 @@
 //
-//  LoginContainerView.swift
+//  ResetPasswordView.swift
 //  NotificationApp
 //
-//  Created by Safiyenur Ozer on 6.12.2025.
+//  Created by Safiyenur Ozer on 24.12.2025.
 //
+
 
 import SwiftUI
 internal import _LocationEssentials
 
-struct LoginContainerView: View {
+struct ResetPasswordView: View {
 	//MARK: - Değişkenler
 	@EnvironmentObject var authCoordinator: AuthCoordinator
 	@State private var navigateToHome = false
@@ -18,6 +19,9 @@ struct LoginContainerView: View {
 	@State private var email: String = ""
 	@State private var password: String = ""
 	
+	@State private var showAlert = false
+	@State private var alertTitle = ""
+	
 	//MARK: - Main
 	var body: some View {
 		NavigationStack {
@@ -26,15 +30,9 @@ struct LoginContainerView: View {
 					.ignoresSafeArea()
 				
 				VStack(spacing: 10) {
-					welcomeIcon()
-						.padding()
-					
-					Text("Hoş geldiniz")
+					Text("Şifrenizi Değiştirin")
 						.font(.title).bold()
 						.foregroundStyle(.white)
-					
-					Text("Devam etmek için giriş yapın.")
-						.foregroundStyle(.gray)
 					
 					TextFieldComp(title: "E-Posta",
 												placeholder: "e-postanızı giriniz",
@@ -44,18 +42,17 @@ struct LoginContainerView: View {
 					}
 					.padding(.top)
 					
-					TextFieldComp(title: "Şifre",
-												placeholder: "şifrenizi girin",
-												configuration: configuration.loginPasswordConfiguration)
-					.onCodeCompletion { password in
-						self.password = password
-					}
-					
 					VStack {
 						Button(action: {
 							Task {
-								if let user = await authCoordinator.login(email: email, password: password) {
-									navigateToHome = true
+								authCoordinator.resetPassword(email: email) { error in
+									if let error {
+										self.alertTitle = error
+										showAlert = true
+									} else {
+										self.alertTitle = "Şifre yenileme isteği gönderildi lütfen mailinizi kontrol edin."
+										showAlert = true
+									}
 								}
 							}
 						}) {
@@ -69,7 +66,7 @@ struct LoginContainerView: View {
 								.foregroundColor(.white)
 								.cornerRadius(5)
 							} else {
-								Text("Giriş Yap")
+								Text("Şifreyi Yenile")
 									.frame(maxWidth: .infinity, minHeight: 50)
 									.background(Color.hexConverter(hexString: "#3a71e4"))
 									.foregroundColor(.white)
@@ -80,50 +77,13 @@ struct LoginContainerView: View {
 					.padding(.horizontal, 10)
 					.padding(.top, 30)
 					
-					HStack(spacing: 10) {
-						Text("Hesabınız yok mu?")
-							.foregroundStyle(.white)
-						
-						NavigationLink {
-							RegisterContainerView()
-						} label: {
-							Text("Kayıt ol")
-						}
-						
-					}
-					.padding(.top, 20)
-					
-					HStack(spacing: 10) {
-						Text("Şifrenizi mi unuttunuz?")
-							.foregroundStyle(.white)
-						
-						NavigationLink {
-							ResetPasswordView()
-						} label: {
-							Text("Şifremi Unuttum")
-						}
-						
-					}
-					.padding(.top, 10)
 				}
 			}
-			.navigationDestination(isPresented: $navigateToHome) {
-                MainTabView()
-			}
 		}
-		
-	}
-	
-	@ViewBuilder
-	private func welcomeIcon() -> some View {
-		VStack {
-			Image(systemName: "checkmark.circle")
-				.resizable()
-				.frame(width: 30, height: 30)
+		.alert(alertTitle, isPresented: $showAlert) {
+				Button("Tamam", role: .cancel) {}
+		} message: {
 		}
-		.frame(width: 60, height: 60)
-		.background(.blue)
-		.clipShape(.rect(cornerRadius: 6))
 		
 	}
 	
@@ -133,7 +93,7 @@ struct LoginContainerView: View {
 	let repo = FirebaseAuthRepository()
 	let coordinator = AuthCoordinator(repository: repo)
 	
-	return LoginContainerView()
+	return ResetPasswordView()
 		.environmentObject(coordinator)
 }
 
