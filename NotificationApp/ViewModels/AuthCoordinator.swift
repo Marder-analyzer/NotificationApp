@@ -69,6 +69,22 @@ final class AuthCoordinator: ObservableObject {
 		isLoading = false
 	}
 	
+	func resetPassword(email: String, completion: @escaping (String?) -> Void) {
+		guard !email.isEmpty else {
+			errorMessage = "Email boş olamaz."
+			return
+		}
+		
+		isLoading = true
+		errorMessage = nil
+		
+		repository.resetPassword(email: email) { error in
+			completion(error)
+		}
+		
+		isLoading = false
+	}
+	
 	func logout() async {
 		do {
 			try await repository.logout()
