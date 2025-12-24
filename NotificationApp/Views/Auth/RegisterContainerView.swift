@@ -16,6 +16,9 @@ struct RegisterContainerView: View {
 	@State private var name: String = ""
 	@State private var email: String = ""
 	@State private var password: String = ""
+	@State private var selectedIndex = 1
+	@State private var isPresented: Bool = false
+	@State private var errorMessage: String? = ""
 	
 	var body: some View {
 		ZStack {
@@ -44,12 +47,45 @@ struct RegisterContainerView: View {
 					self.password = password
 				}
 				
+				VStack {
+					Text("Kullanıcı Rolünüzü seçiniz")
+						.foregroundStyle(.white)
+					HStack {
+						Button {
+							selectedIndex = 1
+						} label: {
+							Text("Admin")
+								.foregroundStyle(.white)
+						}
+						.frame(width: UIScreen.main.bounds.width / 3, height: 50)
+						.background(selectedIndex == 1 ? .blue : .gray)
+						.clipShape(RoundedRectangle(cornerRadius: 12))
+						Button {
+							self.selectedIndex = 0
+						} label: {
+							Text("Kullanıcı")
+								.foregroundStyle(.white)
+						}
+						.frame(width: UIScreen.main.bounds.width / 3, height: 50)
+						.background(selectedIndex == 1 ? .gray : .blue)
+						.clipShape(RoundedRectangle(cornerRadius: 12))
+					}
+				}
+				
 				Spacer()
 				
 				VStack {
 					Button(action: {
 						Task {
-							await authCoordinator.register(email: email, password: password)
+							let result = await authCoordinator.register(email: email, password: password, nameSurname: name, userType: selectedIndex == 1 ? "admin" : "user")
+							if result {
+								self.errorMessage = "Kayıt olma başarılı login olabilirsiniz"
+								isPresented.toggle()
+							} else {
+								self.errorMessage = authCoordinator.errorMessage
+								isPresented.toggle()
+							}
+							
 						}
 					}) {
 						if authCoordinator.isLoading {
@@ -62,7 +98,7 @@ struct RegisterContainerView: View {
 							.foregroundColor(.white)
 							.cornerRadius(5)
 						} else {
-							Text("Register")
+							Text("Kayıt ol")
 								.frame(maxWidth: .infinity, minHeight: 50)
 								.background(Color.hexConverter(hexString: "#3a71e4"))
 								.foregroundColor(.white)
@@ -92,6 +128,18 @@ struct RegisterContainerView: View {
 				Text("Kayıt ol")
 					.foregroundStyle(.white)
 			}
+		})
+		.alert(self.errorMessage ?? "", isPresented: $isPresented, actions: {
+			Button {
+				self.presentationMode.wrappedValue.dismiss()
+			} label: {
+				Text("OK")
+			}.frame(width: 100, height: 50)
+				.background(.blue)
+				.clipShape(RoundedRectangle(cornerRadius: 10))
+
+		}, message: {
+			
 		})
 //		.navigationTitle("Kayıt Ol")
 	}

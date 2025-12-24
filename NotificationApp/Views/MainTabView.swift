@@ -35,8 +35,10 @@ struct MainTabView: View {
             }
             Tab("Profil", systemImage: "person.fill", value: 3) {
                 NavigationStack {
-                    FollowingNotificationsView(repository: notificationRepo)
-                        .navigationBarHidden(true)
+									ProfileView()
+										.navigationBarHidden(true)
+//                    FollowingNotificationsView(repository: notificationRepo)
+//                        .navigationBarHidden(true)
                 }
             }
             if userRole == "Admin" {

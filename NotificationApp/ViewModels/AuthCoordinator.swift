@@ -14,6 +14,7 @@ final class AuthCoordinator: ObservableObject {
 	@Published var user: AuthUser?
 	@Published var isLoading: Bool = false
 	@Published var errorMessage: String?
+	@Published var profileUser: AuthUser?
 	
 	private let repository: AuthRepository
 	
@@ -40,6 +41,7 @@ final class AuthCoordinator: ObservableObject {
 		
 		do {
 			self.user = try await repository.login(email: email, password: password)
+			loadProfileUser()
 			isLoading = false
 			return user
 		} catch {
@@ -51,22 +53,24 @@ final class AuthCoordinator: ObservableObject {
 		return nil
 	}
 	
-	func register(email: String, password: String) async {
+	func register(email: String, password: String, nameSurname: String, userType: String) async -> Bool {
 		guard !email.isEmpty, !password.isEmpty else {
 			errorMessage = "Email ve şifre boş olamaz."
-			return
+			return false
 		}
 		
 		isLoading = true
 		errorMessage = nil
 		
 		do {
-			self.user = try await repository.register(email: email, password: password)
+			self.user = try await repository.register(email: email, password: password, nameSurname: nameSurname, userType: userType)
+			isLoading = false
+			return true
 		} catch {
 			errorMessage = error.localizedDescription
+			isLoading = false
+			return false
 		}
-		
-		isLoading = false
 	}
 	
 	func resetPassword(email: String, completion: @escaping (String?) -> Void) {
@@ -83,6 +87,12 @@ final class AuthCoordinator: ObservableObject {
 		}
 		
 		isLoading = false
+	}
+	
+	func loadProfileUser() {
+		repository.loadProfileUser { user in
+			self.profileUser = user
+		}
 	}
 	
 	func logout() async {

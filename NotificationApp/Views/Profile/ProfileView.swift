@@ -5,6 +5,7 @@
 //  Created by Safiyenur Ozer on 24.12.2025.
 //
 import SwiftUI
+import Firebase
 
 struct ProfileView: View {
 	@EnvironmentObject var authCoordinator: AuthCoordinator
@@ -13,30 +14,54 @@ struct ProfileView: View {
 		ZStack {
 			Color.hexConverter(hexString: "#13181f")
 				.ignoresSafeArea()
-			VStack {
-				
-				AsyncImage(url: URL(string: "https://www.pngall.com/wp-content/uploads/5/Profile-Male-PNG.png")) { phase in
-					switch phase {
-					case .success(let image):
-						image
-							.resizable()
-							.frame(width: 100, height: 100)
-							.ignoresSafeArea()
-							
-					default:
-						Color.black.ignoresSafeArea()
+			
+			if let user = authCoordinator.profileUser {
+				VStack(spacing: 12) {
+					
+					AsyncImage(
+						url: URL(string: user.photoURL ??
+										 "https://www.pngall.com/wp-content/uploads/5/Profile-Male-PNG.png")
+					) { phase in
+						switch phase {
+						case .success(let image):
+							image
+								.resizable()
+								.scaledToFill()
+						default:
+							Color.gray
+						}
 					}
+					.frame(width: 100, height: 100)
+					.clipShape(Circle())
+					
+					Text(user.fullName ?? "")
+						.font(.title)
+						.foregroundStyle(.white)
+						.padding(.top, 8)
+					
+					rowMaker(
+						icon: "envelope",
+						title: "E-Posta",
+						description: user.email ?? ""
+					)
+					
+					rowMaker(
+						icon: "person.crop.circle",
+						title: "Kullanıcı Rolü",
+						description: user.role == "admin" ? "Yönetici" : "Kullanıcı"
+					)
+					
+					rowMaker(
+						icon: "building.2",
+						title: "Birim",
+						description: user.department ?? ""
+					)
+					
+					Spacer()
 				}
-				Text("Safiyenur Özer")
-					.font(.title)
-					.foregroundStyle(.white)
-					.padding()
-				
-				rowMaker(icon: "xmark", title: "E-Posta", description: "safiyenurOzer@gmail.com")
-				
-				rowMaker(icon: "xmark", title: "Kullanıcı Rolü", description: "Yönetici")
-				
-				rowMaker(icon: "xmark", title: "Birim", description: "İnsan Kaynakları")
+			} else {
+				ProgressView()
+					.tint(.white)
 			}
 		}
 		

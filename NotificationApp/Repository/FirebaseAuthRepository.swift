@@ -7,6 +7,8 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
+import FirebaseDatabase
 
 final class FirebaseAuthRepository: AuthRepository {
 	var currentUser: AuthUser? {
@@ -14,9 +16,17 @@ final class FirebaseAuthRepository: AuthRepository {
 		return AuthUser(id: user.uid, email: user.email)
 	}
 	
-	func register(email: String, password: String) async throws -> AuthUser {
+	func register(email: String, password: String, nameSurname: String, userType: String) async throws -> AuthUser {
 		let result = try await Auth.auth().createUser(withEmail: email, password: password)
 		let user = result.user
+		
+		try await createProfileDocument(
+			uid: user.uid,
+			email: user.email ?? email,
+			nameSurname: nameSurname,
+			userType: userType
+		)
+		
 		return AuthUser(id: user.uid, email: user.email)
 	}
 	
@@ -34,6 +44,44 @@ final class FirebaseAuthRepository: AuthRepository {
 						completion(nil)
 				 }
 		 }
+	}
+	
+	private func createProfileDocument(uid: String, email: String, nameSurname: String, userType: String) async throws {
+		let role = (userType == Role.admin) ? Role.admin : Role.user
+		let db = Firestore.firestore()
+		
+		let data: [String: Any] = [
+			"email": email,
+			"role": role,
+			"department": "—",
+			"fullName": nameSurname,
+			"photoURL": NSNull(),
+			"createdAt": FieldValue.serverTimestamp()
+		]
+		
+		try await db.collection("users").document(uid).setData(data, merge: true)
+	}
+	
+	func loadProfileUser(completion: @escaping (AuthUser?) -> ()) {
+		guard let uid = Auth.auth().currentUser?.uid else { return }
+		
+		Firestore.firestore()
+			.collection("users")
+			.document(uid)
+			.getDocument { snapshot, _ in
+				guard let data = snapshot?.data() else { return }
+				
+				DispatchQueue.main.async {
+					completion( AuthUser(
+						id: data["uid"] as? String ?? "",
+						email: Auth.auth().currentUser?.email ?? "—",
+						fullName: data["fullName"] as? String ?? "—",
+						role: data["role"] as? String ?? "user",
+						department: data["department"] as? String ?? "—",
+						photoURL: data["photoURL"] as? String
+					))
+				}
+			}
 	}
 	
 	func logout() async throws {
@@ -58,4 +106,9 @@ final class FirebaseAuthRepository: AuthRepository {
 	}
 	
 	
+}
+
+enum Role {
+	static let admin = "admin"
+	static let user  = "user"
 }

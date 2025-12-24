@@ -10,10 +10,11 @@ import Foundation
 protocol AuthRepository {
 	var currentUser: AuthUser? { get }
 	
-	func register(email: String, password: String) async throws -> AuthUser
+	func register(email: String, password: String, nameSurname: String, userType: String) async throws -> AuthUser
 	func login(email: String, password: String) async throws -> AuthUser
 	func resetPassword(email: String, completion: @escaping (String?) -> Void)
 	func logout() async throws
+	func loadProfileUser(completion: @escaping (AuthUser?) -> Void)
 	
 	func observeAuthChanges(_ handler: @escaping (AuthUser?) -> Void)
 	
