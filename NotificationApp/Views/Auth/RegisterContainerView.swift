@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegisterContainerView: View {
-	@EnvironmentObject var authCoordinator: AuthCoordinator
+	@StateObject var authCoordinator = AuthCoordinator()
 	@Environment(\.presentationMode) var presentationMode
 	
 	let configuration = AuthConfiguration()
@@ -78,7 +78,7 @@ struct RegisterContainerView: View {
 					Button(action: {
 						Task {
 							let result = await authCoordinator.register(email: email, password: password, nameSurname: name, userType: selectedIndex == 1 ? "admin" : "user")
-							if result {
+							if let result {
 								self.errorMessage = "Kayıt olma başarılı login olabilirsiniz"
 								isPresented.toggle()
 							} else {
@@ -144,12 +144,4 @@ struct RegisterContainerView: View {
 //		.navigationTitle("Kayıt Ol")
 	}
 	
-}
-
-#Preview {
-	let repo = FirebaseAuthRepository()
-	let coordinator = AuthCoordinator(repository: repo)
-	
-	return RegisterContainerView()
-		.environmentObject(coordinator)
 }
