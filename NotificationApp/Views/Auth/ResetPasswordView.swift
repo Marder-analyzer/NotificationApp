@@ -11,7 +11,7 @@ internal import _LocationEssentials
 
 struct ResetPasswordView: View {
 	//MARK: - Değişkenler
-	@EnvironmentObject var authCoordinator: AuthCoordinator
+	@StateObject var authCoordinator = AuthCoordinator()
 	@State private var navigateToHome = false
 	
 	let configuration = AuthConfiguration()
@@ -88,12 +88,3 @@ struct ResetPasswordView: View {
 	}
 	
 }
-
-#Preview {
-	let repo = FirebaseAuthRepository()
-	let coordinator = AuthCoordinator(repository: repo)
-	
-	return ResetPasswordView()
-		.environmentObject(coordinator)
-}
-

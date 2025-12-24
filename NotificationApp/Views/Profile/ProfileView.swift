@@ -8,14 +8,14 @@ import SwiftUI
 import Firebase
 
 struct ProfileView: View {
-	@EnvironmentObject var authCoordinator: AuthCoordinator
-	
+	@StateObject var authCoordinator = AuthCoordinator()
+	@State private var profile: AuthUser?
 	var body: some View {
 		ZStack {
 			Color.hexConverter(hexString: "#13181f")
 				.ignoresSafeArea()
 			
-			if let user = authCoordinator.profileUser {
+			if let user = profile {
 				VStack(spacing: 12) {
 					
 					AsyncImage(
@@ -62,6 +62,10 @@ struct ProfileView: View {
 			} else {
 				ProgressView()
 					.tint(.white)
+			}
+		}.onAppear {
+			authCoordinator.loadProfileUser { profile in
+				self.profile = profile
 			}
 		}
 		

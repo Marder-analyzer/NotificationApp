@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseDatabase
 
-final class FirebaseAuthRepository: AuthRepository {
+final class FirebaseAuthRepository {
 	var currentUser: AuthUser? {
 		guard let user = Auth.auth().currentUser else { return nil }
 		return AuthUser(id: user.uid, email: user.email)

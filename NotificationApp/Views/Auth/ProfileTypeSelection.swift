@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ProfileTypeSelection: View {
 	//MARK: - Değişkenler
-	@EnvironmentObject var authCoordinator: AuthCoordinator
+	@StateObject var authCoordinator = AuthCoordinator()
 	@State private var navigateToHome = false
 	
 	let configuration = AuthConfiguration()

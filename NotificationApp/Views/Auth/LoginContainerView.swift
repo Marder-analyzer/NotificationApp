@@ -10,7 +10,7 @@ internal import _LocationEssentials
 
 struct LoginContainerView: View {
 	//MARK: - Değişkenler
-	@EnvironmentObject var authCoordinator: AuthCoordinator
+	@StateObject var authCoordinator = AuthCoordinator()
 	@State private var navigateToHome = false
 	
 	let configuration = AuthConfiguration()
@@ -128,12 +128,3 @@ struct LoginContainerView: View {
 	}
 	
 }
-
-#Preview {
-	let repo = FirebaseAuthRepository()
-	let coordinator = AuthCoordinator(repository: repo)
-	
-	return LoginContainerView()
-		.environmentObject(coordinator)
-}
-
