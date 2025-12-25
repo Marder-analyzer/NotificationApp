@@ -17,46 +17,41 @@ struct MainTabView: View {
         TabView(selection: $selection) {
             Tab("Anasayfa", systemImage: "house.fill", value: 0) {
                 if let profile {
-                    NavigationStack {
                         HomeView(repository: notificationRepo, profile: profile)
                             .navigationBarHidden(true)
-                    }
                 } else {
-                    ProgressView()
+                    ZStack {
+                        Color.hexConverter(hexString: "#13181f")
+                            .ignoresSafeArea()
+                        ProgressView()
+                    }
                 }
             }
             Tab("Harita", systemImage: "map.fill", value: 1) {
                 if let profile {
-                    NavigationStack {
-                        MapView(repository: notificationRepo, profile: profile)
-                            .navigationBarHidden(true)
-                    }
+                    MapView(repository: notificationRepo, profile: profile)
+                        .navigationBarHidden(true)
                 } else {
-                    ProgressView()
+                    ZStack {
+                        Color.hexConverter(hexString: "#13181f")
+                            .ignoresSafeArea()
+                        ProgressView()
+                    }
                 }
 
             }
             Tab("Oluştur", systemImage: "plus.circle.fill", value: 2) {
-                NavigationStack {
-                    CreateNotificationView()
-                        .navigationBarHidden(true)
-                }
+                CreateNotificationView()
+                    .navigationBarHidden(true)
             }
             Tab("Profil", systemImage: "person.fill", value: 3) {
-                NavigationStack {
-									ProfileView()
-										.navigationBarHidden(true)
-//                    FollowingNotificationsView(repository: notificationRepo)
-//                        .navigationBarHidden(true)
-                }
+                    ProfileView()
+                        .navigationBarHidden(true)
             }
-            if let profile = profile,
-               profile.role == "admin" {
+            if let profile = profile, profile.role == "admin" {
                 Tab("Yönetici", systemImage: "shield.righthalf.filled", value: 4) {
-                    NavigationStack {
-                        AdminDashboardView(repository: notificationRepo, profile: profile )
-                            .navigationBarHidden(true)
-                    }
+                    AdminDashboardView(repository: notificationRepo, profile: profile )
+                        .navigationBarHidden(true)
                 }
             }
         }

@@ -42,8 +42,11 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                             .foregroundColor(Color.hexConverter(hexString: "#8e8e93"))
                             .cornerRadius(12)
                     }
-                    
-                    FilterMenuView(viewModel: vm, profile: profile ?? AuthUser(id: "", email: ""))
+                    if let profile {
+                        FilterMenuView(viewModel: vm, profile: profile)
+                    } else {
+                        ProgressView()
+                    }
                 }
                 .padding(.horizontal)
                 
@@ -52,8 +55,12 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                     options: statusOptions
                 )
                 
-                NotificationRowView2(vm: vm, profile: profile ?? AuthUser(id: "", email: "") )
-                    .padding(.horizontal)
+                if let profile {
+                    NotificationRowView2(vm: vm, profile: profile)
+                        .padding(.horizontal)
+                } else {
+                    ProgressView()
+                }
             }
             .onAppear {
                 guard let profile else { return }
