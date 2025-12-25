@@ -13,8 +13,9 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
     @State var profile: AuthUser?
     @State private var selectedSegment = 0
     
-    init(repository: R) {
+    init(repository: R, profile: AuthUser) {
         _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+        self.profile = profile
     }
     
     let configuration = HomeConfiguration()
@@ -132,5 +133,5 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
 
 #Preview {
     let repo = RepositoryFactory().makeNotificationRepository()
-    FollowingNotificationsView(repository: repo)
+    FollowingNotificationsView(repository: repo, profile: AuthUser(id: "", email: ""))
 }

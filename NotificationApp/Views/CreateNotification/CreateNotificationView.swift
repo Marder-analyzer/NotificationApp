@@ -27,7 +27,13 @@ struct CreateNotificationView: View {
                         
                         NotificationDetailsView(viewModel: viewModel)
                         
-                        NotificationTypeSelectionView(viewModel: viewModel)
+                        Text("Bildirim Türü")
+                            .font(.title3)
+                            .bold()
+                            .foregroundStyle(.white.opacity(0.7))
+                        
+                        NotificationTypeSelectionView(selectedType: $viewModel.selectedType)
+                        
                     }
                     .padding(.horizontal)
                     

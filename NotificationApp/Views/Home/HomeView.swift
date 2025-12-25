@@ -10,11 +10,11 @@ import FirebaseAuth
 
 struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
     @StateObject private var vm: GenericViewModel<R>
-    var profile: AuthUser
+    let profile: AuthUser?
     
     init(repository: R, profile: AuthUser) {
-        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
         self.profile = profile
+        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
     }
     
     @State private var navigateToAddScreen = false
@@ -43,7 +43,7 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                             .cornerRadius(12)
                     }
                     
-                    FilterMenuView(viewModel: vm, profile: profile)
+                    FilterMenuView(viewModel: vm, profile: profile ?? AuthUser(id: "", email: ""))
                 }
                 .padding(.horizontal)
                 
@@ -52,10 +52,12 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                     options: statusOptions
                 )
                 
-                NotificationRowView2(vm: vm, profile: profile )
+                NotificationRowView2(vm: vm, profile: profile ?? AuthUser(id: "", email: "") )
                     .padding(.horizontal)
             }
             .onAppear {
+                guard let profile else { return }
+                vm.profile = profile
                 vm.loadNotifications()
             }
             .onTapGesture {

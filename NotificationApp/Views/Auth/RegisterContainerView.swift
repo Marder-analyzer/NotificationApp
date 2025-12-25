@@ -10,7 +10,8 @@ import SwiftUI
 struct RegisterContainerView: View {
 	@StateObject var authCoordinator = AuthCoordinator()
 	@Environment(\.presentationMode) var presentationMode
-	
+    @State private var selectedNotificationType: NotificationType = .security
+
 	let configuration = AuthConfiguration()
 	
 	@State private var name: String = ""
@@ -47,8 +48,18 @@ struct RegisterContainerView: View {
 					self.password = password
 				}
 				
+                VStack(alignment: .leading) {
+                    Text("Bildirim Türü")
+                        .foregroundStyle(.white)
+                    
+                    NotificationTypeSelectionView(
+                        selectedType: $selectedNotificationType
+                    )
+                }
+                .padding(.horizontal, 10)
+                
 				VStack {
-					Text("Kullanıcı Rolünüzü seçiniz")
+					Text("Kullanıcı Rolünüzü Seçiniz")
 						.foregroundStyle(.white)
 					HStack {
 						Button {
@@ -71,13 +82,13 @@ struct RegisterContainerView: View {
 						.clipShape(RoundedRectangle(cornerRadius: 12))
 					}
 				}
-				
+                
 				Spacer()
 				
 				VStack {
 					Button(action: {
 						Task {
-							let result = await authCoordinator.register(email: email, password: password, nameSurname: name, userType: selectedIndex == 1 ? "admin" : "user")
+							let result = await authCoordinator.register(email: email, password: password, nameSurname: name, userType: selectedIndex == 1 ? "admin" : "user", department: selectedNotificationType.rawValue)
 							if let result {
 								self.errorMessage = "Kayıt olma başarılı login olabilirsiniz"
 								isPresented.toggle()

@@ -10,22 +10,31 @@ import SwiftUI
 struct MainTabView: View {
     @State private var selection: Int = 0
     @StateObject var authCoordinator = AuthCoordinator()
-    @State var profile: AuthUser?
+    @State private var profile: AuthUser? = nil
     private let notificationRepo = RepositoryFactory().makeNotificationRepository()
     
     var body: some View {
         TabView(selection: $selection) {
             Tab("Anasayfa", systemImage: "house.fill", value: 0) {
-                NavigationStack {
-                    HomeView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
-                        .navigationBarHidden(true)
+                if let profile {
+                    NavigationStack {
+                        HomeView(repository: notificationRepo, profile: profile)
+                            .navigationBarHidden(true)
+                    }
+                } else {
+                    ProgressView()
                 }
             }
             Tab("Harita", systemImage: "map.fill", value: 1) {
-                NavigationStack {
-                    MapView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
-                        .navigationBarHidden(true)
+                if let profile {
+                    NavigationStack {
+                        MapView(repository: notificationRepo, profile: profile)
+                            .navigationBarHidden(true)
+                    }
+                } else {
+                    ProgressView()
                 }
+
             }
             Tab("Oluştur", systemImage: "plus.circle.fill", value: 2) {
                 NavigationStack {
@@ -41,10 +50,11 @@ struct MainTabView: View {
 //                        .navigationBarHidden(true)
                 }
             }
-            if profile?.role == "admin" {
+            if let profile = profile,
+               profile.role == "admin" {
                 Tab("Yönetici", systemImage: "shield.righthalf.filled", value: 4) {
                     NavigationStack {
-                        AdminDashboardView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
+                        AdminDashboardView(repository: notificationRepo, profile: profile )
                             .navigationBarHidden(true)
                     }
                 }
@@ -59,6 +69,6 @@ struct MainTabView: View {
     }
 }
 
-#Preview {
-    MainTabView()
-}
+//#Preview {
+//    MainTabView()
+//}

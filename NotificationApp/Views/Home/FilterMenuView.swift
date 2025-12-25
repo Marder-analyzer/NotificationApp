@@ -28,9 +28,10 @@ struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
                 Label("Sadece Takip Ettiklerim", systemImage: "heart.fill")
             }
             
-            if profile.role == "admin" {
+            if profile.role == "admin",
+               let department = profile.department {
                 Toggle(isOn: $viewModel.showOnlyMyDepartment) {
-                    Label("Yetki Alanım (\(profile.department))", systemImage: NotificationType(rawValue: profile.department ?? "Sağlık")?.iconName ?? "")
+                    Label("Yetki Alanım (\(department))", systemImage: NotificationType(rawValue:profile.department ?? "")?.iconName ?? "")
                 }
             }
         } label: {

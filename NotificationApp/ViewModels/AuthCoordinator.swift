@@ -10,6 +10,11 @@ import FirebaseAuth
 import Combine
 import Firebase
 
+enum Role {
+    static let admin = "admin"
+    static let user  = "user"
+}
+
 @MainActor
 final class AuthCoordinator: ObservableObject {
 	@Published var user: AuthUser?
@@ -17,7 +22,7 @@ final class AuthCoordinator: ObservableObject {
 	@Published var errorMessage: String?
 	@Published var profileUser: AuthUser?
 	
-	func register(email: String, password: String, nameSurname: String, userType: String) async -> AuthUser? {
+	func register(email: String, password: String, nameSurname: String, userType: String, department: String) async -> AuthUser? {
 		let result = try? await Auth.auth().createUser(withEmail: email, password: password)
 		let user = result?.user
 		
@@ -25,7 +30,8 @@ final class AuthCoordinator: ObservableObject {
 			uid: user?.uid ?? "",
 			email: user?.email ?? email,
 			nameSurname: nameSurname,
-			userType: userType
+			userType: userType,
+            department: department
 		)
 		
 		return AuthUser(id: user?.uid ?? "", email: user?.email)
@@ -47,7 +53,7 @@ final class AuthCoordinator: ObservableObject {
 		 }
 	}
 	
-	private func createProfileDocument(uid: String, email: String, nameSurname: String, userType: String) async throws {
+    private func createProfileDocument(uid: String, email: String, nameSurname: String, userType: String, department: String) async throws {
 		let role = (userType == Role.admin) ? Role.admin : Role.user
 		let db = Firestore.firestore()
 		
@@ -55,7 +61,7 @@ final class AuthCoordinator: ObservableObject {
             "uid": uid,
 			"email": email,
 			"role": role,
-			"department": "—",
+			"department": department,
 			"fullName": nameSurname,
 			"photoURL": NSNull(),
 			"createdAt": FieldValue.serverTimestamp()
@@ -79,7 +85,7 @@ final class AuthCoordinator: ObservableObject {
 						email: Auth.auth().currentUser?.email ?? "—",
 						fullName: data["fullName"] as? String ?? "—",
 						role: data["role"] as? String ?? "user",
-						department: data["department"] as? String ?? "—",
+						department: data["department"] as? String,
 						photoURL: data["photoURL"] as? String
 					))
 				}
@@ -108,3 +114,5 @@ final class AuthCoordinator: ObservableObject {
 	}
 	
 }
+
+
