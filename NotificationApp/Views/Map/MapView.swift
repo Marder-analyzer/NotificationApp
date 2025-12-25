@@ -10,8 +10,9 @@ import _MapKit_SwiftUI
 
 struct MapView<R: Repository>: View where R.Entity == NotificationItem {
 
-    @ObservedObject var vm: GenericViewModel<R>
+    @StateObject private var vm: GenericViewModel<R>
     @StateObject private var locationManager = LocationManager()
+    var profile: AuthUser
     
     @State private var cameraPosition: MapCameraPosition =
         .region(
@@ -26,6 +27,11 @@ struct MapView<R: Repository>: View where R.Entity == NotificationItem {
     
     var selectedNotification: NotificationItem? {
         vm.notificationModel.first { $0.id == selectedNotificationID }
+    }
+    
+    init(repository: R, profile: AuthUser) {
+        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+        self.profile = profile
     }
     
     var body: some View {
@@ -59,7 +65,7 @@ struct MapView<R: Repository>: View where R.Entity == NotificationItem {
             }
             
             if let selected = selectedNotification {
-                NotificationMapCardView(notification: selected, vm: vm) {
+                NotificationMapCardView(notification: selected, vm: vm, profile: profile) {
                     withAnimation(.spring) {
                         selectedNotificationID = nil
                     }
@@ -149,8 +155,8 @@ struct MapView<R: Repository>: View where R.Entity == NotificationItem {
 
 }
 
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    let vm = GenericViewModel(repository: repo)
-    MapView(vm: vm)
-}
+//#Preview {
+//    let repo = RepositoryFactory().makeNotificationRepository()
+//    let vm = GenericViewModel(repository: repo)
+//    MapView(repository: <#_#>, profile: <#AuthUser?#>)
+//}

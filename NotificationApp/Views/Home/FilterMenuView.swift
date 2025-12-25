@@ -10,6 +10,7 @@ import SwiftUI
 struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
     
     @ObservedObject var viewModel: GenericViewModel<R>
+    var profile: AuthUser
     
     var body: some View {
         Menu {
@@ -27,9 +28,9 @@ struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
                 Label("Sadece Takip Ettiklerim", systemImage: "heart.fill")
             }
             
-            if viewModel.currentUserRole == "Admin" {
+            if profile.role == "admin" {
                 Toggle(isOn: $viewModel.showOnlyMyDepartment) {
-                    Label("Yetki Alanım (\(viewModel.currentUserDepartment.rawValue))", systemImage: viewModel.currentUserDepartment.iconName)
+                    Label("Yetki Alanım (\(profile.department))", systemImage: NotificationType(rawValue: profile.department ?? "Sağlık")?.iconName ?? "")
                 }
             }
         } label: {
@@ -54,5 +55,5 @@ struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
     let repo = RepositoryFactory().makeNotificationRepository()
     let viewModel = GenericViewModel(repository: repo)
     
-    return FilterMenuView(viewModel: viewModel)
+    FilterMenuView(viewModel: viewModel, profile: AuthUser(id: "", email: ""))
 }

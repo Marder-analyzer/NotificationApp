@@ -12,6 +12,7 @@ struct NotificationMapCardView<R: Repository>: View where R.Entity == Notificati
     let notification: NotificationItem
     let vm: GenericViewModel<R>
     var onClose: () -> Void
+    @State var profile: AuthUser?
     
     var body: some View {
         VStack(spacing: 16) {
@@ -65,7 +66,9 @@ struct NotificationMapCardView<R: Repository>: View where R.Entity == Notificati
                 
                 Spacer()
                 
-                NavigationLink(destination: NotificationDetailView(vm: vm, notification: notification)
+                NavigationLink(destination: NotificationDetailView(vm: vm,
+                                                                   notification: notification,
+                                                                   profile: profile ?? AuthUser(id: "", email: ""))
                     .toolbar(.hidden, for: .tabBar)) {
                     HStack {
                         Text("Detayı Gör")

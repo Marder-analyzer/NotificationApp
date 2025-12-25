@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
     @StateObject private var vm: GenericViewModel<R>
+    var profile: AuthUser
     
-    init(repository: R) {
+    init(repository: R, profile: AuthUser) {
         _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+        self.profile = profile
     }
     
     @State private var navigateToAddScreen = false
@@ -40,7 +43,7 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                             .cornerRadius(12)
                     }
                     
-                    FilterMenuView(viewModel: vm)
+                    FilterMenuView(viewModel: vm, profile: profile)
                 }
                 .padding(.horizontal)
                 
@@ -49,7 +52,7 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
                     options: statusOptions
                 )
                 
-                NotificationRowView2(vm: vm)
+                NotificationRowView2(vm: vm, profile: profile )
                     .padding(.horizontal)
             }
             .onAppear {
@@ -61,12 +64,14 @@ struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
             .navigationDestination(isPresented: $navigateToAddScreen) {
                 CreateNotificationView(showBackButton: true)
                     .toolbar(.hidden, for: .tabBar)
+                    .navigationBarHidden(true)
             }
         }
+
     }
 }
 
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    HomeView(repository: repo)
-}
+//#Preview {
+//    let repo = RepositoryFactory().makeNotificationRepository()
+//    HomeView(repository: repo)
+//}

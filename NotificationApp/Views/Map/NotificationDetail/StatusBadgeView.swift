@@ -9,10 +9,10 @@ import SwiftUI
 
 struct StatusBadgeView: View {
     @Binding var status: NotificationStatus
-    let role: String
+    var profile: AuthUser
     
     var body: some View {
-        if role == "Admin" {
+        if profile.role == "admin" {
             Menu {
                 ForEach(NotificationStatus.allCases, id: \.self) { option in
                     Button {
@@ -60,6 +60,6 @@ struct StatusBadgeView: View {
     }
 }
 
-#Preview {
-    StatusBadgeView(status: .constant(.open), role: "Admin")
-}
+//#Preview {
+//    StatusBadgeView(status: .constant(.open), role: "admin")
+//}

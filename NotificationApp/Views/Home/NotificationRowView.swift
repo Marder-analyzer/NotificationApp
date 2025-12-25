@@ -35,7 +35,8 @@ struct NotificationRowView: View {
 
 struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationItem {
     @ObservedObject var vm: GenericViewModel<R>
-	
+    var profile: AuthUser
+    
     var body: some View {
         
         ScrollView {
@@ -58,7 +59,8 @@ struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationI
                         NavigationLink {
                             NotificationDetailView(
                                 vm: vm,
-                                notification: item
+                                notification: item,
+                                profile: profile
                             )
                             .toolbar(.hidden, for: .tabBar)
                         } label: {

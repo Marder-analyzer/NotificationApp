@@ -9,21 +9,21 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selection: Int = 0
-    var userRole: String = "Admin"
+    @StateObject var authCoordinator = AuthCoordinator()
+    @State var profile: AuthUser?
     private let notificationRepo = RepositoryFactory().makeNotificationRepository()
     
     var body: some View {
         TabView(selection: $selection) {
             Tab("Anasayfa", systemImage: "house.fill", value: 0) {
                 NavigationStack {
-                    
-                    HomeView(repository: notificationRepo)
+                    HomeView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
                         .navigationBarHidden(true)
                 }
             }
             Tab("Harita", systemImage: "map.fill", value: 1) {
                 NavigationStack {
-                    MapView(vm: GenericViewModel(repository: notificationRepo))
+                    MapView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
                         .navigationBarHidden(true)
                 }
             }
@@ -41,13 +41,18 @@ struct MainTabView: View {
 //                        .navigationBarHidden(true)
                 }
             }
-            if userRole == "Admin" {
+            if profile?.role == "admin" {
                 Tab("Yönetici", systemImage: "shield.righthalf.filled", value: 4) {
                     NavigationStack {
-                        AdminDashboardView(repository: notificationRepo)
+                        AdminDashboardView(repository: notificationRepo, profile: profile ?? AuthUser(id: "", email: ""))
                             .navigationBarHidden(true)
                     }
                 }
+            }
+        }
+        .onAppear {
+            authCoordinator.loadProfileUser { profile in
+                self.profile = profile
             }
         }
         .tint(.blue)

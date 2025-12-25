@@ -9,7 +9,8 @@ import SwiftUI
 
 struct FollowingNotificationsView<R: Repository>: View where R.Entity == NotificationItem {
     @StateObject private var vm: GenericViewModel<R>
-    
+    @StateObject var authCoordinator = AuthCoordinator()
+    @State var profile: AuthUser?
     @State private var selectedSegment = 0
     
     init(repository: R) {
@@ -45,8 +46,9 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
                                 NavigationLink {
                                     NotificationDetailView(
                                         vm: vm,
-                                        notification: item
-                                    )
+                                        notification: item,
+                                        profile: profile ?? AuthUser(id: "", email: "")
+                                     )
                                     .toolbar(.hidden, for: .tabBar)
                                 } label: {
                                     FollowingNotificationRow(notification: item) {
@@ -65,6 +67,9 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
         .onAppear {
             vm.showOnlyFollowed = true
             vm.loadNotifications()
+            authCoordinator.loadProfileUser { profile in
+                self.profile = profile
+            }
         }
         .onTapGesture {
             hideKeyboard()

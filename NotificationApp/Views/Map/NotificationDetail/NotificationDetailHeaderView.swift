@@ -12,12 +12,12 @@ struct NotificationDetailHeaderView: View {
     // MARK: - Değişkenler
     let notification: NotificationItem
     @Binding var currentStatus: NotificationStatus
-    var userRole: String
+    var profile: AuthUser
     
     var body: some View {
         HStack(spacing: 15) {
             
-            StatusBadgeView(status: $currentStatus, role: userRole) 
+            StatusBadgeView(status: $currentStatus, profile: profile) 
             
             HStack(spacing: 6) {
                 Image(systemName: notification.type.iconName )
@@ -52,5 +52,5 @@ struct NotificationDetailHeaderView: View {
         address: "Merkezi Yemekhane Önü, Kampüs",
         coordinate: "",
         imageUrls: [""]
-    ))
+    ), profile: AuthUser(id: "", email: ""))
 }

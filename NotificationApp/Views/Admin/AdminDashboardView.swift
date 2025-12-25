@@ -9,11 +9,12 @@ import SwiftUI
 
 struct AdminDashboardView<R: Repository>: View where R.Entity == NotificationItem {
     @StateObject private var vm: GenericViewModel<R>
-    
+    var profile: AuthUser
     @State private var selectedSegment = 0
     
-    init(repository: R) {
+    init(repository: R, profile: AuthUser) {
         _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+        self.profile = profile
     }
     
     var body: some View {
@@ -68,7 +69,8 @@ struct AdminDashboardView<R: Repository>: View where R.Entity == NotificationIte
                         NavigationLink {
                             NotificationDetailView(
                                 vm: vm,
-                                notification: item
+                                notification: item,
+                                profile: profile ?? AuthUser(id: "", email: "")
                             )
                             .toolbar(.hidden, for: .tabBar)
                         } label: {
@@ -183,5 +185,5 @@ struct AdminDashboardView<R: Repository>: View where R.Entity == NotificationIte
 
 #Preview {
     let repo = RepositoryFactory().makeNotificationRepository()
-    AdminDashboardView(repository: repo)
+    AdminDashboardView(repository: repo, profile: AuthUser(id: "", email: ""))
 }

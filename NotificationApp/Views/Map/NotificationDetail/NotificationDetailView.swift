@@ -16,16 +16,27 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
     @State private var isFollowed: Bool = false
     @State private var editedStatus: NotificationStatus
     @Environment(\.dismiss) var dismiss
-    var userRole: String = "Admin"
+    @StateObject private var followVM: FollowViewModel
+    var profile: AuthUser
     
     private var hasChanges: Bool {
         editedStatus != notification.status
     }
     
-    init(vm: GenericViewModel<R>, notification: NotificationItem) {
+    init(vm: GenericViewModel<R>, notification: NotificationItem, profile: AuthUser) {
         self.vm = vm
         self.notification = notification
         _editedStatus = State(initialValue: notification.status)
+        self.profile = profile
+        
+        let service = FollowService()
+        _followVM = StateObject(
+            wrappedValue: FollowViewModel(
+                service: service,
+                notificationId: notification.id,
+                profile: profile
+            )
+        )
     }
     
     var body: some View {
@@ -52,14 +63,14 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
                             .bold()
                         
                         Spacer()
-                        if userRole == "Admin" {
+                        if profile.role == "admin"{
                             NotificationSaveChangesButton {
                                 saveChanges()
                             }
                             .disabled(!hasChanges)
                             .opacity(hasChanges ? 1.0 : 0.4)
                         } else {
-                            NotificationFollowButton()
+                            NotificationFollowButton(vm: followVM)
                         }
                     }
                     .padding(.horizontal)
@@ -74,7 +85,7 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
                         VStack(spacing: 10) {
                             NotificationDetailHeaderView(
                                 notification: notification,
-                                currentStatus: $editedStatus, userRole: userRole
+                                currentStatus: $editedStatus, profile: profile
                             )
                             
                             NotificationDetailContentView(notification: notification)
@@ -89,6 +100,9 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
             }
             .scrollIndicators(.never)
             .navigationBarHidden(true)
+        }
+        .task {
+            await followVM.loadFollowStatus()
         }
     }
     
@@ -116,5 +130,5 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
         address: "Merkezi Yemekhane Önü, Kampüs",
         coordinate: "",
         imageUrls: [""]
-    ))
+    ), profile: AuthUser(id: "", email: ""))
 }

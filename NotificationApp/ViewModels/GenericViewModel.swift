@@ -22,8 +22,11 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
     @Published var selectedType: NotificationType? = nil
     @Published var sortOrder: SortOrder = .newest
     
-    let currentUserRole = "Admin"
-    let currentUserDepartment = NotificationType.health
+
+//    let currentUserDepartment = profile?.department
+    var profile: AuthUser?
+
+//    let currentUserRole = profile?.role
     
     private let repository: R
     private var loadTask: Task<Void, Never>?
@@ -126,7 +129,7 @@ extension GenericViewModel where R.Entity == NotificationItem {
             let matchesGlobalFilters: Bool
             if useGlobalFilters {
                 let matchesType = selectedType == nil || item.type == selectedType
-                let matchesDepartment = !showOnlyMyDepartment || (item.type == currentUserDepartment)
+                let matchesDepartment = !showOnlyMyDepartment || (item.type.rawValue == profile?.department)
                 let matchesStatus: Bool
                 switch selectedStatusIndex {
                 case 1: matchesStatus = (item.status == .open)

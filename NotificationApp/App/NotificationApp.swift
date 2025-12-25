@@ -14,7 +14,7 @@ struct NotificationApp: App {
 	@UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 	
 	var body: some Scene {
-		WindowGroup {
+        WindowGroup {
 			if let user = Auth.auth().currentUser {
 				MainTabView()
 			} else {

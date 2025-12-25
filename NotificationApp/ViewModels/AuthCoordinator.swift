@@ -52,6 +52,7 @@ final class AuthCoordinator: ObservableObject {
 		let db = Firestore.firestore()
 		
 		let data: [String: Any] = [
+            "uid": uid,
 			"email": email,
 			"role": role,
 			"department": "—",
