@@ -8,9 +8,9 @@
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct MapView<R: Repository>: View where R.Entity == NotificationItem {
+struct MapView: View {
 
-    @StateObject private var vm: GenericViewModel<R>
+    @StateObject private var vm: GenericViewModel
     @StateObject private var locationManager = LocationManager()
     var profile: AuthUser
     
@@ -29,8 +29,8 @@ struct MapView<R: Repository>: View where R.Entity == NotificationItem {
         vm.notificationModel.first { $0.id == selectedNotificationID }
     }
     
-    init(repository: R, profile: AuthUser) {
-        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+    init(repository: GenericViewModel, profile: AuthUser) {
+        _vm = StateObject(wrappedValue: repository)
         self.profile = profile
     }
     

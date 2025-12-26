@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct FollowingNotificationsView<R: Repository>: View where R.Entity == NotificationItem {
-    @StateObject private var vm: GenericViewModel<R>
-    @StateObject var authCoordinator = AuthCoordinator()
+struct FollowingNotificationsView: View {
+    @StateObject private var vm: GenericViewModel
+		@StateObject var authCoordinator = AuthCoordinator()
     @State var profile: AuthUser?
     @State private var selectedSegment = 0
-    
-    init(repository: R, profile: AuthUser) {
-        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+	@State private var isLoaded: Bool = false
+    init(repository: GenericViewModel, profile: AuthUser?) {
+        _vm = StateObject(wrappedValue: repository)
         self.profile = profile
     }
     
@@ -40,7 +40,7 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
                     else if vm.followingFilteredNotifications.isEmpty {
                         emptyStateView
                     }
-                    else {
+                    else if isLoaded {
                         LazyVStack(spacing: 16) {
                             ForEach(vm.followingFilteredNotifications) { item in
                                 
@@ -65,11 +65,14 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
                 .padding(.horizontal)
             }
         }
+				.navigationBarHidden(true)
         .onAppear {
             vm.showOnlyFollowed = true
             vm.loadNotifications()
             authCoordinator.loadProfileUser { profile in
-                self.profile = profile
+							self.profile = profile
+							self.vm.profile = profile
+							self.isLoaded = true
             }
         }
         .onTapGesture {
@@ -129,9 +132,4 @@ struct FollowingNotificationsView<R: Repository>: View where R.Entity == Notific
         }
         .padding(.top, 50)
     }
-}
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    FollowingNotificationsView(repository: repo, profile: AuthUser(id: "", email: ""))
 }

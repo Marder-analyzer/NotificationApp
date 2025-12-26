@@ -73,23 +73,47 @@ final class AuthCoordinator: ObservableObject {
 	func loadProfileUser(completion: @escaping (AuthUser?) -> ()) {
 		guard let uid = Auth.auth().currentUser?.uid else { return }
 		
-		Firestore.firestore()
-			.collection("users")
-			.document(uid)
-			.getDocument { snapshot, _ in
-				guard let data = snapshot?.data() else { return }
-				
-				DispatchQueue.main.async {
-					completion( AuthUser(
-						id: data["uid"] as? String ?? "",
-						email: Auth.auth().currentUser?.email ?? "—",
-						fullName: data["fullName"] as? String ?? "—",
-						role: data["role"] as? String ?? "user",
-						department: data["department"] as? String,
-						photoURL: data["photoURL"] as? String
-					))
+		let db = Firestore.firestore()
+		let userRef = db.collection("users").document(uid)
+		let followedRef = userRef.collection("followedNotifications")
+		
+		var userData: [String: Any] = [:]
+		var followedIds: [String] = []
+		
+		let group = DispatchGroup()
+		
+		group.enter()
+		userRef.getDocument { snapshot, error in
+			defer { group.leave() }
+			guard let data = snapshot?.data(), error == nil else { return }
+			userData = data
+		}
+		
+		group.enter()
+		followedRef.getDocuments { snapshot, error in
+			defer { group.leave() }
+			guard let docs = snapshot?.documents, error == nil else { return }
+			
+			followedIds = docs.compactMap { doc in
+				if let id = doc.data()["notificationId"] as? String {
+					return id
 				}
+				return doc.documentID
 			}
+		}
+		
+		group.notify(queue: .main) {
+			let user = AuthUser(
+				id: userData["uid"] as? String ?? uid,
+				email: Auth.auth().currentUser?.email ?? "—",
+				fullName: userData["fullName"] as? String ?? "—",
+				role: userData["role"] as? String ?? "user",
+				department: userData["department"] as? String,
+				photoURL: userData["photoURL"] as? String,
+				collection: followedIds
+			)
+			completion(user)
+		}
 	}
 	
 	func logout() async throws {
@@ -102,15 +126,7 @@ final class AuthCoordinator: ObservableObject {
 	
 	//TODO
 	func observeAuthChanges(_ handler: @escaping (AuthUser?) -> Void) {
-		let a = Auth.auth().addStateDidChangeListener { _, user in
-			let authUser: AuthUser?
-			if let user {
-				authUser = AuthUser(id: user.uid, email: user.email)
-			} else {
-				authUser = nil
-			}
-			handler(authUser)
-		}
+
 	}
 	
 }

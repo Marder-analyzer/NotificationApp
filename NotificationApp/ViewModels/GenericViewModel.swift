@@ -6,10 +6,10 @@
 //
 import SwiftUI
 import Combine
+import Firebase
 
-@MainActor
-final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Identifiable, R.Entity: Equatable {
-    @Published var notificationModel: [R.Entity] = []
+final class GenericViewModel: ObservableObject {
+    @Published var notificationModel: [NotificationItem] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     @Published var followingSearchText: String = ""
@@ -21,19 +21,14 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
     @Published var selectedStatusIndex: Int = 0
     @Published var selectedType: NotificationType? = nil
     @Published var sortOrder: SortOrder = .newest
-    
+		private let ref = Database.database().reference().child("notifications")
 
 //    let currentUserDepartment = profile?.department
     @Published var profile: AuthUser?
 
 //    let currentUserRole = profile?.role
     
-    private let repository: R
     private var loadTask: Task<Void, Never>?
-    
-    init(repository: R) {
-        self.repository = repository
-    }
     
     func loadNotifications() {
         loadTask?.cancel()
@@ -45,7 +40,7 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
             defer { isLoading = false }
             
             do {
-                let notifications = try await repository.fetch()
+                let notifications = try await fetch()
                 self.notificationModel = notifications
             } catch {
                 self.errorMessage = error.localizedDescription
@@ -54,7 +49,7 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
         }
     }
     
-    func delete(_ item: R.Entity) {
+    func delete(_ item: NotificationItem) {
         guard let index = notificationModel.firstIndex(where: { $0.id == item.id }) else {
             print("HATA: Silinecek öğe listede bulunamadı.")
             return
@@ -64,7 +59,7 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
         
         Task {
             do {
-                try await repository.delete(item)
+                try await delete(item)
             } catch {
                 print("Delete Error:", error.localizedDescription)
                 self.errorMessage = "Silme işlemi başarısız oldu."
@@ -81,14 +76,14 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
     }
     
     // MARK: - UPDATE (Güncelleme)
-    func update(_ item: R.Entity) {
+    func update(_ item: NotificationItem) {
         if let index = notificationModel.firstIndex(where: { $0.id == item.id }) {
             notificationModel[index] = item
         }
         
         Task {
             do {
-                try await repository.update(item)
+                try await update(item)
             } catch {
                 print("Update Error:", error.localizedDescription)
                 self.errorMessage = "Güncelleme başarısız oldu."
@@ -96,9 +91,89 @@ final class GenericViewModel<R: Repository>: ObservableObject where R.Entity: Id
             }
         }
     }
+	
+	
+	
+	// MARK: - FETCH
+	func fetch() async throws -> [NotificationItem] {
+			return try await withCheckedThrowingContinuation { continuation in
+					ref.observeSingleEvent(of: .value) { snapshot in
+							guard let dict = snapshot.value as? [String: Any] else {
+									continuation.resume(returning: [])
+									return
+							}
+							
+							do {
+									var items: [NotificationItem] = []
+									
+									for (key, value) in dict {
+											var itemData = value as! [String: Any]
+											itemData["id"] = key
+											
+											let data = try JSONSerialization.data(withJSONObject: itemData)
+											let item = try JSONDecoder().decode(NotificationItem.self, from: data)
+											items.append(item)
+									}
+									
+									continuation.resume(returning: items)
+							} catch {
+									continuation.resume(throwing: error)
+							}
+					}
+			}
+	}
+	
+	// MARK: - SAVE (Create)
+	func save(_ item: NotificationItem) async throws {
+			let itemRef = ref.child(item.id)
+
+			return try await withCheckedThrowingContinuation { continuation in
+					itemRef.setValue(item.toDictionary()) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+	}
+	
+	// MARK: - UPDATE
+	func update(_ item: NotificationItem) async throws {
+			let itemRef = ref.child(item.id)
+			return try await withCheckedThrowingContinuation { continuation in
+					itemRef.updateChildValues(item.toDictionary()) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+	}
+	
+	// MARK: - DELETE
+	func delete(_ item: NotificationItem) async throws {
+			let itemRef = ref.child(item.id)
+			
+			return try await withCheckedThrowingContinuation { continuation in
+					itemRef.removeValue { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+	}
+	
+	// MARK: - IMAGE UPLOAD
+	func uploadImage(data: Data) async throws -> String? {
+		return nil
+	}
 }
 
-extension GenericViewModel where R.Entity == NotificationItem {
+extension GenericViewModel {
     var homeFilteredNotifications: [NotificationItem] {
         return applyFilter(
             items: notificationModel,
@@ -117,9 +192,14 @@ extension GenericViewModel where R.Entity == NotificationItem {
         )
     }
     
-    private func applyFilter(items: [NotificationItem], query: String, filterByFollowed: Bool, useGlobalFilters: Bool) -> [NotificationItem] {
+	private func applyFilter(items: [NotificationItem], query: String, filterByFollowed: Bool, useGlobalFilters: Bool) -> [NotificationItem] {
         
         let filtered = items.filter { item in
+					if filterByFollowed {
+						guard let contain = self.profile?.collection?.first(where: { $0 == item.id }) else { return false }
+						
+					}
+					
             let matchesSearch = query.isEmpty ||
             item.title.localizedCaseInsensitiveContains(query) ||
             item.description.localizedCaseInsensitiveContains(query)

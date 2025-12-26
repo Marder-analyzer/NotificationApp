@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct NotificationMapCardView<R: Repository>: View where R.Entity == NotificationItem {
+struct NotificationMapCardView: View {
 
     let notification: NotificationItem
-    let vm: GenericViewModel<R>
+    let vm: GenericViewModel
     var onClose: () -> Void
     @State var profile: AuthUser?
     
@@ -93,23 +93,4 @@ struct NotificationMapCardView<R: Repository>: View where R.Entity == Notificati
         .padding(.horizontal)
         .padding(.bottom, 10)
     }
-}
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    let vm = GenericViewModel(repository: repo)
-    
-    NotificationMapCardView(notification: NotificationItem(
-        type: .technical,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: "",
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: "",
-        imageUrls: [""]
-    ),vm: vm, onClose: {
-        
-    })
 }

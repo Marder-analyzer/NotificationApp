@@ -8,10 +8,10 @@
 import SwiftUI
 import _MapKit_SwiftUI
 
-struct NotificationDetailView<R: Repository>: View where R.Entity == NotificationItem {
+struct NotificationDetailView: View {
     
     // MARK: - Değişkenler
-    @ObservedObject var vm: GenericViewModel<R>
+    @ObservedObject var vm: GenericViewModel
     let notification: NotificationItem
     @State private var isFollowed: Bool = false
     @State private var editedStatus: NotificationStatus
@@ -23,7 +23,7 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
         editedStatus != notification.status
     }
     
-    init(vm: GenericViewModel<R>, notification: NotificationItem, profile: AuthUser) {
+    init(vm: GenericViewModel, notification: NotificationItem, profile: AuthUser) {
         self.vm = vm
         self.notification = notification
         _editedStatus = State(initialValue: notification.status)
@@ -114,21 +114,4 @@ struct NotificationDetailView<R: Repository>: View where R.Entity == Notificatio
 
         vm.update(updatedNotification)
     }
-}
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    let vm = GenericViewModel(repository: repo)
-    
-    NotificationDetailView(vm: vm, notification:  NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: "",
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: "",
-        imageUrls: [""]
-    ), profile: AuthUser(id: "", email: ""))
 }

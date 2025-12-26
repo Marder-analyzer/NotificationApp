@@ -8,13 +8,13 @@
 import SwiftUI
 import FirebaseAuth
 
-struct HomeView<R: Repository>: View where R.Entity == NotificationItem {
-    @StateObject private var vm: GenericViewModel<R>
+struct HomeView: View {
+		@StateObject var vm: GenericViewModel
     let profile: AuthUser?
     
-    init(repository: R, profile: AuthUser) {
+    init(repository: GenericViewModel, profile: AuthUser) {
         self.profile = profile
-        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+        _vm = StateObject(wrappedValue: repository)
     }
     
     @State private var navigateToAddScreen = false

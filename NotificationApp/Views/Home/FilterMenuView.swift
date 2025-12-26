@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
+struct FilterMenuView: View {
     
-    @ObservedObject var viewModel: GenericViewModel<R>
+    @ObservedObject var viewModel: GenericViewModel
+	
     var profile: AuthUser
     
     var body: some View {
@@ -50,11 +51,4 @@ struct FilterMenuView<R: Repository>: View where R.Entity == NotificationItem {
                viewModel.showOnlyFollowed ||
                viewModel.showOnlyMyDepartment
     }
-}
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    let viewModel = GenericViewModel(repository: repo)
-    
-    FilterMenuView(viewModel: viewModel, profile: AuthUser(id: "", email: ""))
 }

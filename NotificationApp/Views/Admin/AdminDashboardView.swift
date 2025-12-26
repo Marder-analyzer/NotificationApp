@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct AdminDashboardView<R: Repository>: View where R.Entity == NotificationItem {
-    @StateObject private var vm: GenericViewModel<R>
+struct AdminDashboardView: View {
+		@StateObject private var vm: GenericViewModel
     var profile: AuthUser
     @State private var selectedSegment = 0
     
-    init(repository: R, profile: AuthUser) {
-        _vm = StateObject(wrappedValue: GenericViewModel(repository: repository))
+    init(repository: GenericViewModel, profile: AuthUser) {
+        _vm = StateObject(wrappedValue: repository)
         self.profile = profile
     }
     
@@ -181,9 +181,4 @@ struct AdminDashboardView<R: Repository>: View where R.Entity == NotificationIte
         
         vm.update(updatedItem)
     }
-}
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    AdminDashboardView(repository: repo, profile: AuthUser(id: "", email: ""))
 }

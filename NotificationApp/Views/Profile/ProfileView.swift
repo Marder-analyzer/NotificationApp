@@ -6,10 +6,13 @@
 //
 import SwiftUI
 import Firebase
+import FirebaseAuth
 
 struct ProfileView: View {
 	@StateObject var authCoordinator = AuthCoordinator()
 	@State private var profile: AuthUser?
+	@StateObject var vm: GenericViewModel
+	
 	var body: some View {
 		ZStack {
 			Color.hexConverter(hexString: "#13181f")
@@ -57,6 +60,24 @@ struct ProfileView: View {
 						description: user.department ?? ""
 					)
 					
+					NavigationLink {
+						FollowingNotificationsView(repository: vm, profile: profile)
+					} label: {
+						rowMaker(
+						 icon: "building.2",
+						 title: "Bildirimler",
+						 description: user.department ?? "")
+					}
+					
+					Button {
+						Task {
+							try Auth.auth().signOut()
+						}
+					} label: {
+						Text("SG")
+					}
+
+					
 					Spacer()
 				}
 			} else {
@@ -75,7 +96,8 @@ struct ProfileView: View {
 	func rowMaker(
 		icon: String,
 		title: String,
-		description: String
+		description: String,
+		onAction: (() -> Void)? = nil
 	) -> some View {
 		HStack {
 			Image(systemName: icon)
@@ -98,9 +120,8 @@ struct ProfileView: View {
 						.padding(.horizontal, 5)
 				}
 			}
+			.onTapGesture {
+				onAction?()
+			}
 	}
-}
-
-#Preview {
-	ProfileView()
 }

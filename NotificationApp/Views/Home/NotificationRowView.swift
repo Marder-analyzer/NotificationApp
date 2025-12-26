@@ -33,8 +33,8 @@ struct NotificationRowView: View {
     
 }
 
-struct NotificationRowView2<R: Repository>: View where R.Entity == NotificationItem {
-    @ObservedObject var vm: GenericViewModel<R>
+struct NotificationRowView2: View {
+    @ObservedObject var vm: GenericViewModel
     var profile: AuthUser
     
     var body: some View {

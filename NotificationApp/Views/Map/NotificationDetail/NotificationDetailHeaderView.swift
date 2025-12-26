@@ -37,20 +37,3 @@ struct NotificationDetailHeaderView: View {
         }
     }
 }
-
-#Preview {
-    let repo = RepositoryFactory().makeNotificationRepository()
-    let vm = GenericViewModel(repository: repo)
-    
-    NotificationDetailView(vm: vm, notification: NotificationItem(
-        type: .security,
-        title: "Kütüphane Arkası Şüpheli Paket",
-        description: "Kütüphane arka girişinde sahipsiz siyah bir çanta var, uzun süredir orada duruyor.",
-        date: "",
-        status: .open,
-        userName: "Ahmet Yılmaz",
-        address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: "",
-        imageUrls: [""]
-    ), profile: AuthUser(id: "", email: ""))
-}
