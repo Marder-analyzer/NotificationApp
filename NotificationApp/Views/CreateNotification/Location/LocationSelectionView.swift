@@ -37,5 +37,5 @@ struct LocationSelectionView: View {
 }
 
 #Preview {
-    LocationSelectionView(viewModel: CreateNotificationViewModel())
+    LocationSelectionView(viewModel: CreateNotificationViewModel(genericVM: GenericViewModel()))
 }

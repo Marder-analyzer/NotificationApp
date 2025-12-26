@@ -9,9 +9,19 @@ import SwiftUI
 
 struct CreateNotificationView: View {
     // MARK: - Değişkenler
-    @StateObject private var viewModel = CreateNotificationViewModel()
+    @StateObject private var viewModel: CreateNotificationViewModel
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = false
+    
+    init(
+        genericVM: GenericViewModel,
+        showBackButton: Bool = false
+    ) {
+        _viewModel = StateObject(
+            wrappedValue: CreateNotificationViewModel(genericVM: genericVM)
+        )
+        self.showBackButton = showBackButton
+    }
     
     var body: some View {
         ZStack {
@@ -81,5 +91,8 @@ struct CreateNotificationView: View {
 }
 
 #Preview {
-    CreateNotificationView(showBackButton: false)
+    CreateNotificationView(
+        genericVM: GenericViewModel(),
+        showBackButton: false
+    )
 }

@@ -9,8 +9,25 @@ import SwiftUI
 import FirebaseAuth
 
 struct HomeView: View {
-		@StateObject var vm: GenericViewModel
+    @StateObject var vm: GenericViewModel
     let profile: AuthUser?
+    @State private var searchText = ""
+    @State private var showOnlyFollowed = false
+    @State private var selectedStatusIndex = 0
+    @State private var selectedType: NotificationType?
+    @State private var showOnlyMyDepartment = false
+    @State private var sortOrder: SortOrder = .newest
+    
+    var items: [NotificationItem] {
+        vm.filteredNotifications(
+            query: searchText,
+            onlyFollowed: showOnlyFollowed,
+            selectedType: selectedType,
+            selectedStatusIndex: selectedStatusIndex,
+            showOnlyMyDepartment: false,
+            sortOrder: sortOrder
+        )
+    }
     
     init(repository: GenericViewModel, profile: AuthUser) {
         self.profile = profile
@@ -31,10 +48,10 @@ struct HomeView: View {
                 })
                 
                 HStack(spacing: 12) {
-                    CustomSearchBar(text: $vm.searchText)
+                    CustomSearchBar(text: $searchText)
                     
                     Button {
-                        vm.sortOrder.toggle()
+                        sortOrder.toggle()
                     } label: {
                         Image(systemName: "arrow.up.arrow.down")
                             .padding(10)
@@ -43,7 +60,12 @@ struct HomeView: View {
                             .cornerRadius(12)
                     }
                     if let profile {
-                        FilterMenuView(viewModel: vm, profile: profile)
+                        FilterMenuView(
+                            selectedType: $selectedType,
+                            showOnlyFollowed: $showOnlyFollowed,
+                            showOnlyMyDepartment: $showOnlyMyDepartment,
+                            profile: profile
+                        )
                     } else {
                         ProgressView()
                     }
@@ -51,12 +73,12 @@ struct HomeView: View {
                 .padding(.horizontal)
                 
                 StatusFilterView(
-                    selectedIndex: $vm.selectedStatusIndex,
+                    selectedIndex: $selectedStatusIndex,
                     options: statusOptions
                 )
                 
                 if let profile {
-                    NotificationRowView2(vm: vm, profile: profile)
+                    NotificationRowView2(vm: vm, profile: profile, items: items)
                         .padding(.horizontal)
                 } else {
                     ProgressView()
@@ -71,7 +93,8 @@ struct HomeView: View {
                 hideKeyboard()
             }
             .navigationDestination(isPresented: $navigateToAddScreen) {
-                CreateNotificationView(showBackButton: true)
+                CreateNotificationView(genericVM: vm,
+                                       showBackButton: true)
                     .toolbar(.hidden, for: .tabBar)
                     .navigationBarHidden(true)
             }
@@ -79,8 +102,3 @@ struct HomeView: View {
 
     }
 }
-
-//#Preview {
-//    let repo = RepositoryFactory().makeNotificationRepository()
-//    HomeView(repository: repo)
-//}

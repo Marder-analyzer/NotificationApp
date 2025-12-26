@@ -17,7 +17,7 @@ class CreateNotificationViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var description: String = ""
     @Published var useCurrentLocation: Bool = true
-    
+    let genericVM: GenericViewModel
     @Published var isLocationSelected: Bool = false
     
     @Published var isSubmitting: Bool = false
@@ -30,6 +30,10 @@ class CreateNotificationViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     )
+    
+    init(genericVM: GenericViewModel) {
+        self.genericVM = genericVM
+    }
     
     // MARK: - Doğrulama (Validation)
     var isValid: Bool {
@@ -88,7 +92,7 @@ class CreateNotificationViewModel: ObservableObject {
         
         Task {
             do {
-                try await NetworkDataSource().save(newNotification)
+                try await genericVM.save(newNotification)
                 
                 await MainActor.run {
                     self.isSubmitting = false

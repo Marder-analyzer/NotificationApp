@@ -10,10 +10,16 @@ import _PhotosUI_SwiftUI
 
 struct CreateEmergencyNotificationView: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject private var viewModel = CreateNotificationViewModel()
+    @StateObject private var viewModel: CreateNotificationViewModel
     
     let configuration = LocationConfiguration()
     @State private var showConfirmationAlert = false
+    
+    init(genericVM: GenericViewModel) {
+        _viewModel = StateObject(
+            wrappedValue: CreateNotificationViewModel(genericVM: genericVM)
+        )
+    }
     
     var body: some View {
         ZStack {
@@ -174,5 +180,5 @@ struct CreateEmergencyNotificationView: View {
 }
 
 #Preview {
-    CreateEmergencyNotificationView()
+    CreateEmergencyNotificationView(genericVM: GenericViewModel())
 }

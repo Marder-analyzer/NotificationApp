@@ -63,5 +63,5 @@ struct NotificationDetailsView: View {
 
 
 #Preview {
-    NotificationDetailsView(viewModel: CreateNotificationViewModel())
+    NotificationDetailsView(viewModel: CreateNotificationViewModel(genericVM: GenericViewModel()))
 }

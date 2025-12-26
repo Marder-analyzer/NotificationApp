@@ -42,7 +42,7 @@ struct MainTabView: View {
                 
             }
             Tab("Oluştur", systemImage: "plus.circle.fill", value: 2) {
-                CreateNotificationView()
+                CreateNotificationView(genericVM: vm)
                     .navigationBarHidden(true)
             }
             Tab("Profil", systemImage: "person.fill", value: 3) {

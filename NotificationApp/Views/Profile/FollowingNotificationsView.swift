@@ -9,13 +9,26 @@ import SwiftUI
 
 struct FollowingNotificationsView: View {
     @StateObject private var vm: GenericViewModel
-		@StateObject var authCoordinator = AuthCoordinator()
+    @StateObject var authCoordinator = AuthCoordinator()
     @State var profile: AuthUser?
+    @State private var searchText = ""
     @State private var selectedSegment = 0
-	@State private var isLoaded: Bool = false
+    @State private var isLoaded: Bool = false
+    
     init(repository: GenericViewModel, profile: AuthUser?) {
         _vm = StateObject(wrappedValue: repository)
         self.profile = profile
+    }
+    
+    var items: [NotificationItem] {
+        vm.filteredNotifications(
+            query: searchText,
+            onlyFollowed: true,
+            selectedType: nil,
+            selectedStatusIndex: 0,
+            showOnlyMyDepartment: false,
+            sortOrder: .newest
+        )
     }
     
     let configuration = HomeConfiguration()
@@ -37,19 +50,19 @@ struct FollowingNotificationsView: View {
                     if vm.isLoading {
                         ProgressView().tint(.white).padding(.top, 50)
                     }
-                    else if vm.followingFilteredNotifications.isEmpty {
+                    else if items.isEmpty {
                         emptyStateView
                     }
                     else if isLoaded {
                         LazyVStack(spacing: 16) {
-                            ForEach(vm.followingFilteredNotifications) { item in
+                            ForEach(items) { item in
                                 
                                 NavigationLink {
                                     NotificationDetailView(
                                         vm: vm,
                                         notification: item,
                                         profile: profile ?? AuthUser(id: "", email: "")
-                                     )
+                                    )
                                     .toolbar(.hidden, for: .tabBar)
                                 } label: {
                                     FollowingNotificationRow(notification: item) {
@@ -65,14 +78,13 @@ struct FollowingNotificationsView: View {
                 .padding(.horizontal)
             }
         }
-				.navigationBarHidden(true)
+        .navigationBarHidden(true)
         .onAppear {
-            vm.showOnlyFollowed = true
             vm.loadNotifications()
             authCoordinator.loadProfileUser { profile in
-							self.profile = profile
-							self.vm.profile = profile
-							self.isLoaded = true
+                self.profile = profile
+                self.vm.profile = profile
+                self.isLoaded = true
             }
         }
         .onTapGesture {
@@ -113,7 +125,7 @@ struct FollowingNotificationsView: View {
                 configuration: configuration.homeConfiguration
             )
             .onCodeCompletion { text in
-                vm.followingSearchText = text
+                searchText = text
             }
         }
         .padding(10)
