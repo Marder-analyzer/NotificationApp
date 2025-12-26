@@ -37,7 +37,8 @@ struct CreateNotificationView: View {
                     }
                     .padding(.horizontal)
                     
-                    NotificationEvidenceView(viewModel: viewModel)
+                    LocationSelectionView(viewModel: viewModel)
+                        .padding(.horizontal)
                         .padding(.vertical, 24)
                     
                     NotificationSubmitButtonView(viewModel: viewModel)

@@ -21,6 +21,7 @@ struct LocationSelectionView: View {
             
             LocationMapView(
                 region: $viewModel.region,
+                isLocationSelected: $viewModel.isLocationSelected,
                 onRegionChange: { coordinate in
                     Task {
                         await viewModel.getAddressFromLatLon(

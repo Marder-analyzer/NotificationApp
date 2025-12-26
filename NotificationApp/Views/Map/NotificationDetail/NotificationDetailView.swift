@@ -80,22 +80,17 @@ struct NotificationDetailView: View {
                     
                     NotificationDetailMapView(notification: notification)
                     
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(spacing: 10) {
+                        NotificationDetailHeaderView(
+                            notification: notification,
+                            currentStatus: $editedStatus, profile: profile
+                        )
                         
-                        VStack(spacing: 10) {
-                            NotificationDetailHeaderView(
-                                notification: notification,
-                                currentStatus: $editedStatus, profile: profile
-                            )
-                            
-                            NotificationDetailContentView(notification: notification)
-                            
-                            NotificationDetailInfoView(notification: notification)
-                        }
-                        .padding(.horizontal)
+                        NotificationDetailContentView(notification: notification)
                         
-                        NotificationDetailPhotosView(notification: notification)
+                        NotificationDetailInfoView(notification: notification)
                     }
+                    .padding(.horizontal)
                 }
             }
             .scrollIndicators(.never)
@@ -115,3 +110,4 @@ struct NotificationDetailView: View {
         vm.update(updatedNotification)
     }
 }
+

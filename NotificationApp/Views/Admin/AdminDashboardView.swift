@@ -70,7 +70,7 @@ struct AdminDashboardView: View {
                             NotificationDetailView(
                                 vm: vm,
                                 notification: item,
-                                profile: profile ?? AuthUser(id: "", email: "")
+                                profile: profile
                             )
                             .toolbar(.hidden, for: .tabBar)
                         } label: {

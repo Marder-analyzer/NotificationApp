@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NotificationMapCardView: View {
-
+    
     let notification: NotificationItem
     let vm: GenericViewModel
     var onClose: () -> Void
@@ -70,19 +70,19 @@ struct NotificationMapCardView: View {
                                                                    notification: notification,
                                                                    profile: profile ?? AuthUser(id: "", email: ""))
                     .toolbar(.hidden, for: .tabBar)) {
-                    HStack {
-                        Text("Detayı Gör")
-                        Image(systemName: "chevron.right")
+                        HStack {
+                            Text("Detayı Gör")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 20)
+                        .background(Color.blue.gradient)
+                        .clipShape(Capsule())
+                        .shadow(radius: 3)
                     }
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 20)
-                    .background(Color.blue.gradient)
-                    .clipShape(Capsule())
-                    .shadow(radius: 3)
-                }
             }
         }
         .padding(.horizontal)
@@ -94,3 +94,4 @@ struct NotificationMapCardView: View {
         .padding(.bottom, 10)
     }
 }
+

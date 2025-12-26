@@ -101,8 +101,7 @@ struct FollowingNotificationRow: View {
         status: .open,
         userName: "Ahmet Yılmaz",
         address: "Merkezi Yemekhane Önü, Kampüs",
-        coordinate: "",
-        imageUrls: [""]
+        coordinate: ""
     ), onUnfollow: {
         print("unfollow")
     })
