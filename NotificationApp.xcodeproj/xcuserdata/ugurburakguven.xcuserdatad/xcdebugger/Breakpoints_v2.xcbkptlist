@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "11617A47-C78B-473B-A4EC-8359FC96148A"
+            uuid = "5DEDB9AA-0690-4D8E-A9F2-C8276FCC5329"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NotificationApp/Managers/LocationManager.swift"
+            filePath = "NotificationApp/ViewModels/GenericViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "29"
-            endingLineNumber = "29"
-            landmarkName = "locationManager(_:didUpdateLocations:)"
+            startingLineNumber = "208"
+            endingLineNumber = "208"
+            landmarkName = "delete(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

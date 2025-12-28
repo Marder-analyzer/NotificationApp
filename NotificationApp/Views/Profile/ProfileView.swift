@@ -60,25 +60,28 @@ struct ProfileView: View {
 						description: user.department ?? ""
 					)
                     
-                    if profile?.role != "admin" {
-                        NavigationLink {
-                            FollowingNotificationsView(repository: vm, profile: profile)
-                        } label: {
-                            rowMaker(
-                                icon: "building.2",
-                                title: "Bildirimler",
-                                description: user.department ?? "")
-                        }
-                    }
-					
+					if profile?.role != "admin" {
+						NavigationLink {
+							FollowingNotificationsView(repository: vm, profile: profile)
+						} label: {
+							rowMaker(
+								icon: "building.2",
+								title: "Bildirimler",
+								description: user.department ?? "")
+						}
+					}
+
 					Button {
 						Task {
 							try Auth.auth().signOut()
+							NotificationCenter.default.post(name: .restartApp, object: nil)
 						}
 					} label: {
-						Text("SG")
-					}
-
+						Text("Çıkış Yap")
+							.foregroundStyle(.white)
+					}.frame(width: 250, height: 50)
+						.background(.red)
+						.clipShape(.rect(cornerRadius: 10))
 					
 					Spacer()
 				}

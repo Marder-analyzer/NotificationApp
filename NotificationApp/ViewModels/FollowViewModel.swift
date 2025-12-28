@@ -36,9 +36,15 @@ final class FollowViewModel: ObservableObject {
         do {
             if isFollowed {
                 try await service.unfollow(userId: userId, notificationId: notificationId)
+							Task {
+								await NotificationsCellListener.shared.refreshFollowedIds()
+							}
                 isFollowed = false
             } else {
                 try await service.follow(userId: userId, notificationId: notificationId)
+							Task {
+								await NotificationsCellListener.shared.refreshFollowedIds()
+							}
                 isFollowed = true
             }
         } catch {

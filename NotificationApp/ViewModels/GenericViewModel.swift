@@ -14,6 +14,9 @@ final class GenericViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     
     private let ref = Database.database().reference().child("notifications")
+	private let rootRef = Database.database().reference()
+	private var notificationsCellRef: DatabaseReference { rootRef.child("notificationsCell") }
+
     
     @Published var profile: AuthUser?
     
@@ -73,6 +76,10 @@ final class GenericViewModel: ObservableObject {
         Task {
             do {
                 try await update(item)
+							Task {
+								await NotificationsCellListener.shared.refreshFollowedIds()
+							}
+					
             } catch {
                 print("Update Error:", error.localizedDescription)
                 self.errorMessage = "Güncelleme başarısız oldu."
@@ -113,33 +120,88 @@ final class GenericViewModel: ObservableObject {
     }
     
     // MARK: - SAVE (Create)
-    func save(_ item: NotificationItem) async throws {
-        let itemRef = ref.child(item.id)
-        
-        return try await withCheckedThrowingContinuation { continuation in
-            itemRef.setValue(item.toDictionary()) { error, _ in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
-        }
-    }
+	func save(_ item: NotificationItem) async throws {
+			let itemRef = ref.child(item.id)
+
+			// 1) ANA SAVE — DEĞİŞMEDİ
+			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+					itemRef.setValue(item.toDictionary()) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+
+			// 2) NotificationsCell'e ekleme
+			guard let rootRef = ref.parent else {
+					throw NSError(
+							domain: "RealtimeDatabase",
+							code: -1,
+							userInfo: [NSLocalizedDescriptionKey: "Root reference not found (ref.parent is nil)"]
+					)
+			}
+
+			let cellRef = rootRef.child("notificationsCell").child(item.id)
+			let cellPayload: [String: Any] = [
+					"title": item.title,
+					"description": item.description
+			]
+
+			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+					cellRef.setValue(cellPayload) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+	}
+
     
     // MARK: - UPDATE
-    func update(_ item: NotificationItem) async throws {
-        let itemRef = ref.child(item.id)
-        return try await withCheckedThrowingContinuation { continuation in
-            itemRef.updateChildValues(item.toDictionary()) { error, _ in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
-        }
-    }
+	func update(_ item: NotificationItem) async throws {
+			let itemRef = ref.child(item.id)
+
+			// 1) BUNU DEĞİŞTİRMİYORUZ (aynen)
+			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+					itemRef.updateChildValues(item.toDictionary()) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+
+			// 2) Ek olarak: notificationsCell/{id} güncelle
+			guard let rootRef = ref.parent else {
+					throw NSError(
+							domain: "RealtimeDatabase",
+							code: -1,
+							userInfo: [NSLocalizedDescriptionKey: "Root reference not found (ref.parent is nil)"]
+					)
+			}
+
+			let cellRef = rootRef.child("notificationsCell").child(item.id)
+
+			var cellPayload: [String: Any] = [
+					"title": item.title,
+					"description": item.description
+			]
+
+			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+					cellRef.updateChildValues(cellPayload) { error, _ in
+							if let error = error {
+									continuation.resume(throwing: error)
+							} else {
+									continuation.resume()
+							}
+					}
+			}
+	}
     
     // MARK: - DELETE
     func delete(_ item: NotificationItem) async throws {
