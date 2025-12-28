@@ -48,16 +48,16 @@ struct RegisterContainerView: View {
 					self.password = password
 				}
 				
-                VStack(alignment: .leading) {
-                    Text("Bildirim Türü")
-                        .foregroundStyle(.white)
-                    
-                    NotificationTypeSelectionView(
-                        selectedType: $selectedNotificationType
-                    )
-                }
-                .padding(.horizontal, 10)
-                
+				VStack(alignment: .leading) {
+					Text("Bildirim Türü")
+						.foregroundStyle(.white)
+					
+					NotificationTypeSelectionView(
+						selectedType: $selectedNotificationType
+					)
+				}
+				.padding(.horizontal, 10)
+				
 				VStack {
 					Text("Kullanıcı Rolünüzü Seçiniz")
 						.foregroundStyle(.white)

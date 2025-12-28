@@ -35,9 +35,7 @@ struct RootView: View {
 				.transition(.move(edge: .top).combined(with: .opacity))
 				.zIndex(999)
 				.onAppear {
-					// otomatik kapanma (opsiyonel)
 					DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-						// hâlâ aynı popup ise kapat
 						if appState.activePopup?.id == popup.id {
 							appState.dismissPopup()
 						}

@@ -65,9 +65,10 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
 	let userName: String?
 	let address: String
 	let coordinate: String
-    var isFollowed: Bool = false
+	var isFollowed: Bool = false
+	let isEmergency: Bool?
     
-    init(id: String = UUID().uuidString, type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, isFollowed: Bool = false) {
+	init(id: String = UUID().uuidString, type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, isFollowed: Bool = false, isEmergency: Bool? = nil) {
         self.id = id
 		self.type = type
 		self.title = title
@@ -78,6 +79,7 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
 		self.address = address
 		self.coordinate = coordinate
         self.isFollowed = isFollowed
+		self.isEmergency = isEmergency
 	}
     
     static func == (lhs: NotificationItem, rhs: NotificationItem) -> Bool {
@@ -112,7 +114,7 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
 
 extension NotificationItem {
 	func toDictionary() -> [String: Any] {
-		return [
+		var dict: [String: Any] = [
 			"id": id,
 			"type": type.rawValue,
 			"title": title,
@@ -122,7 +124,12 @@ extension NotificationItem {
 			"userName": userName,
 			"address": address,
 			"coordinate": coordinate,
-            "isFollowed" : isFollowed
+			"isFollowed" : isFollowed,
 		]
+		
+		if let isEmergency {
+			dict["isEmergency"] = isEmergency
+		}
+		return dict
 	}
 }

@@ -71,103 +71,134 @@ final class AppState: ObservableObject {
         activePopup = queue.removeFirst()
     }
 }
+
 final class NotificationsCellListener {
-    static let shared = NotificationsCellListener()
-    
-    private var ref: DatabaseReference?
-    private var addHandle: DatabaseHandle?
-    private var changeHandle: DatabaseHandle?
-    private var startAtMillis: Double = Date().timeIntervalSince1970 * 1000
-    private(set) var followedIds = Set<String>()
-    
-    private var isRefreshing = false
-    
-    func start(appState: AppState) {
-        Task { [weak self] in
-            guard let self else { return }
-            
-            await self.refreshFollowedIds()
-            
-            let ref = Database.database().reference()
-            self.ref = ref
-            
-            let path = ref.child("notificationsCell")
-            
-            self.changeHandle = path.observe(.childChanged, with: { [weak self] snap in
-                guard let self else { return }
-                self.handleSnap(snap, appState: appState, event: "changed")
-            }, withCancel: { error in
-                print("childChanged cancelled:", error.localizedDescription)
-            })
-        }
-    }
-    
-    @MainActor
-    func refreshFollowedIds() async {
-        guard !isRefreshing else { return }
-        isRefreshing = true
-        defer { isRefreshing = false }
-        
-        guard let email = Auth.auth().currentUser?.email, !email.isEmpty else {
-            print("No current user email")
-            followedIds = []
-            return
-        }
-        
-        do {
-            let db = Firestore.firestore()
-            
-            let userSnap = try await db.collection("users")
-                .whereField("email", isEqualTo: email)
-                .limit(to: 1)
-                .getDocuments()
-            
-            guard let userDoc = userSnap.documents.first else {
-                print("No user found for email:", email)
-                followedIds = []
-                return
-            }
-            
-            let followedSnap = try await db.collection("users")
-                .document(userDoc.documentID)
-                .collection("followedNotifications")
-                .getDocuments()
-            
-            followedIds = Set(followedSnap.documents.map { $0.documentID })
-            print("followedIds refreshed:", followedIds.count)
-            
-        } catch {
-            print("refreshFollowedIds error:", error)
-        }
-    }
-    
-    private func handleSnap(_ snap: DataSnapshot, appState: AppState, event: String) {
-        guard followedIds.contains(snap.key) else {
-            return
-        }
-        
-        guard let dict = snap.value as? [String: Any] else { return }
-        
-        let title = dict["displayTitle"] as? String ?? ""
-        let description = dict["description"] as? String ?? ""
-        
-        print("notificationsCell \(event):", snap.key, dict)
-        
-        let item = InAppNotification(id: snap.key, title: title, description: description)
-        Task { @MainActor in
-            appState.enqueue(item)
-        }
-    }
-    
-    func stop() {
-        guard let ref else { return }
-        let path = ref.child("notificationsCell")
-        if let h = addHandle { path.removeObserver(withHandle: h) }
-        if let h = changeHandle { path.removeObserver(withHandle: h) }
-        addHandle = nil
-        changeHandle = nil
-        self.ref = nil
-    }
+	static let shared = NotificationsCellListener()
+	
+	private var ref: DatabaseReference?
+	private var addHandle: DatabaseHandle?
+	private var changeHandle: DatabaseHandle?
+	private var startAtMillis: Double = Date().timeIntervalSince1970 * 1000
+	private let listenerStartedAt: TimeInterval = Date().timeIntervalSince1970
+	private(set) var followedIds = Set<String>()
+	
+	private var isRefreshing = false
+	
+	func start(appState: AppState) {
+			Task { [weak self] in
+					guard let self else { return }
+
+					await self.refreshFollowedIds()
+
+					let ref = Database.database().reference()
+					self.ref = ref
+
+					let path = ref.child("notificationsCell")
+				
+				self.addHandle = path.observe(.childAdded, with: { [weak self] snap in
+					guard let self else { return }
+					self.handleSnapAdd(snap, appState: appState, event: "added")
+				}, withCancel: { error in
+					print("childAdded cancelled:", error.localizedDescription)
+				})
+				
+					self.changeHandle = path.observe(.childChanged, with: { [weak self] snap in
+							guard let self else { return }
+							self.handleSnap(snap, appState: appState, event: "changed")
+					}, withCancel: { error in
+							print("childChanged cancelled:", error.localizedDescription)
+					})
+			}
+	}
+
+	@MainActor
+		func refreshFollowedIds() async {
+				guard !isRefreshing else { return }
+				isRefreshing = true
+				defer { isRefreshing = false }
+
+				guard let email = Auth.auth().currentUser?.email, !email.isEmpty else {
+						print("No current user email")
+						followedIds = []
+						return
+				}
+
+				do {
+						let db = Firestore.firestore()
+
+						let userSnap = try await db.collection("users")
+								.whereField("email", isEqualTo: email)
+								.limit(to: 1)
+								.getDocuments()
+
+						guard let userDoc = userSnap.documents.first else {
+								print("No user found for email:", email)
+								followedIds = []
+								return
+						}
+
+						let followedSnap = try await db.collection("users")
+								.document(userDoc.documentID)
+								.collection("followedNotifications")
+								.getDocuments()
+
+						followedIds = Set(followedSnap.documents.map { $0.documentID })
+						print("followedIds refreshed:", followedIds.count)
+
+				} catch {
+						print("refreshFollowedIds error:", error)
+				}
+		}
+	
+	private func handleSnap(_ snap: DataSnapshot, appState: AppState, event: String) {
+					guard followedIds.contains(snap.key) else {
+							return
+					}
+
+					guard let dict = snap.value as? [String: Any] else { return }
+
+					let title = dict["title"] as? String ?? ""
+					let description = dict["description"] as? String ?? "\(dict["description"] as? Int ?? 0)"
+					let emergency = dict["emergency"] as? Bool ?? false
+					print("notificationsCell \(event):", snap.key, dict)
+
+					let item = InAppNotification(id: snap.key, title: title, description: description)
+					Task { @MainActor in
+						appState.enqueue(item)
+					}
+	}
+	
+	private func handleSnapAdd(_ snap: DataSnapshot, appState: AppState, event: String) {
+			guard let dict = snap.value as? [String: Any] else { return }
+
+			let title = dict["title"] as? String ?? ""
+			let description = dict["description"] as? String
+					?? "\(dict["description"] as? Int ?? 0)"
+			let emergency = dict["isEmergency"] as? Bool ?? false
+
+			if emergency {
+					let item = InAppNotification(
+							id: snap.key,
+							title: title,
+							description: description
+					)
+
+					Task { @MainActor in
+							appState.enqueue(item)
+					}
+			}
+	}
+
+
+	func stop() {
+		guard let ref else { return }
+		let path = ref.child("notificationsCell")
+		if let h = addHandle { path.removeObserver(withHandle: h) }
+		if let h = changeHandle { path.removeObserver(withHandle: h) }
+		addHandle = nil
+		changeHandle = nil
+		self.ref = nil
+	}
 }
 
 

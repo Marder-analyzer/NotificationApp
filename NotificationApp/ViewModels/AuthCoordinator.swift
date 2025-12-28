@@ -63,10 +63,9 @@ final class AuthCoordinator: ObservableObject {
 			"role": role,
 			"department": department,
 			"fullName": nameSurname,
-			"photoURL": NSNull(),
 			"createdAt": FieldValue.serverTimestamp()
 		]
-		
+		guard uid != "" else {return}
 		try await db.collection("users").document(uid).setData(data, merge: true)
 	}
 	
