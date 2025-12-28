@@ -59,15 +59,17 @@ struct ProfileView: View {
 						title: "Birim",
 						description: user.department ?? ""
 					)
-					
-					NavigationLink {
-						FollowingNotificationsView(repository: vm, profile: profile)
-					} label: {
-						rowMaker(
-						 icon: "building.2",
-						 title: "Bildirimler",
-						 description: user.department ?? "")
-					}
+                    
+                    if profile?.role != "admin" {
+                        NavigationLink {
+                            FollowingNotificationsView(repository: vm, profile: profile)
+                        } label: {
+                            rowMaker(
+                                icon: "building.2",
+                                title: "Bildirimler",
+                                description: user.department ?? "")
+                        }
+                    }
 					
 					Button {
 						Task {

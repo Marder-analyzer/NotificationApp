@@ -12,8 +12,7 @@ struct LocationMapView: View {
     @Binding var region: MKCoordinateRegion
     @State private var navigateToMap = false
     @StateObject private var locationManager = LocationManager()
-    
-    @State private var isLocationSelected = false
+    @Binding var isLocationSelected: Bool
     var onRegionChange: ((CLLocationCoordinate2D) -> Void)? = nil
     
     // MARK: - Main Body
@@ -104,8 +103,9 @@ struct MapPinItem: Identifiable {
     let coordinate: CLLocationCoordinate2D
 }
 
-#Preview {
+/*#Preview {
     LocationMapView(region: .constant(MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))))
 }
+*/

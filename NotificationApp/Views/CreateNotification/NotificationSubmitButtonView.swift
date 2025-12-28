@@ -28,5 +28,9 @@ struct NotificationSubmitButtonView: View {
 }
 
 #Preview {
-    NotificationSubmitButtonView(viewModel: CreateNotificationViewModel())
+    NotificationSubmitButtonView(
+        viewModel: CreateNotificationViewModel(
+            genericVM: GenericViewModel()
+        )
+    )
 }

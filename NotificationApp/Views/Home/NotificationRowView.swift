@@ -34,8 +34,9 @@ struct NotificationRowView: View {
 }
 
 struct NotificationRowView2: View {
-    @ObservedObject var vm: GenericViewModel
+    let vm: GenericViewModel
     var profile: AuthUser
+    let items: [NotificationItem]
     
     var body: some View {
         
@@ -44,7 +45,7 @@ struct NotificationRowView2: View {
                 ProgressView()
                     .tint(.white)
                     .padding(.top, 50)
-            } else if vm.homeFilteredNotifications.isEmpty {
+            } else if items.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "bell.slash")
                         .font(.largeTitle)
@@ -55,7 +56,7 @@ struct NotificationRowView2: View {
                 .padding(.top, 50)
             } else {
                 LazyVStack(spacing: 16) {
-                    ForEach(vm.homeFilteredNotifications) { item in
+                    ForEach(items) { item in
                         NavigationLink {
                             NotificationDetailView(
                                 vm: vm,

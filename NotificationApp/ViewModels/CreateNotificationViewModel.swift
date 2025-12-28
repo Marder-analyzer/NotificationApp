@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import _PhotosUI_SwiftUI
 import FirebaseAuth
 internal import MapKit
 
@@ -18,28 +17,23 @@ class CreateNotificationViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var description: String = ""
     @Published var useCurrentLocation: Bool = true
-    
-    @Published var selectedItems: [PhotosPickerItem] = []
-    @Published var selectedImages: [UIImage] = []
-    
-    @Published var selectedItem: PhotosPickerItem? = nil
-    @Published var selectedImage: UIImage? = nil
+    let genericVM: GenericViewModel
     @Published var isLocationSelected: Bool = false
     
     @Published var isSubmitting: Bool = false
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
-    @Published var showCamera: Bool = false
-    @Published var showPicker: Bool = false
     @Published var address: String = ""
-    
-    @Published var showCameraPermissionAlert = false
-    @Published var cameraPermissionMessage = ""
+
     
     @Published var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 39.90, longitude: 41.27),
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     )
+    
+    init(genericVM: GenericViewModel) {
+        self.genericVM = genericVM
+    }
     
     // MARK: - Doğrulama (Validation)
     var isValid: Bool {
@@ -47,29 +41,6 @@ class CreateNotificationViewModel: ObservableObject {
     }
     
     // MARK: - Fonksiyonlar
-    @MainActor
-    func convertPhoto() async {
-        selectedImages.removeAll()
-        for item in selectedItems {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                selectedImages.append(uiImage)
-            }
-        }
-        
-        if let item = selectedItem {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                self.selectedImage = uiImage
-                selectedImages.append(uiImage)
-            }
-        }
-    }
-    
-    @MainActor
-    func convertPhotos() async {
-        await convertPhoto()
-    }
     
     func submitNotification(completion: @escaping () -> Void) {
         
@@ -94,25 +65,13 @@ class CreateNotificationViewModel: ObservableObject {
         
         let currentCoordinate = "\(region.center.latitude), \(region.center.longitude)"
         
-        Task {
-            var imageUrls: [String] = []
-            
-            if !selectedImages.isEmpty {
-                imageUrls = await uploadImages(images: selectedImages)
-            }
-            else if let singleImage = selectedImage {
-                imageUrls = await uploadImages(images: [singleImage])
-            }
-
-            await createAndSaveNotification(
-                coordinate: currentCoordinate,
-                imageUrls: imageUrls,
-                completion: completion
-            )
-        }
+        createAndSaveNotification(
+            coordinate: currentCoordinate,
+            completion: completion
+        )
     }
     
-    private func createAndSaveNotification(coordinate: String, imageUrls: [String], completion: @escaping () -> Void) {
+    private func createAndSaveNotification(coordinate: String, completion: @escaping () -> Void) {
         
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "tr_TR")
@@ -128,13 +87,12 @@ class CreateNotificationViewModel: ObservableObject {
             userName: Auth.auth().currentUser?.email ?? "",
             address: self.address,
             coordinate: coordinate,
-            imageUrls: imageUrls,
             isFollowed: false
         )
         
         Task {
             do {
-                try await NetworkDataSource().save(newNotification)
+                try await genericVM.save(newNotification)
                 
                 await MainActor.run {
                     self.isSubmitting = false
@@ -143,10 +101,6 @@ class CreateNotificationViewModel: ObservableObject {
                     
                     self.title = ""
                     self.description = ""
-                    self.selectedImage = nil
-                    self.selectedImages = []
-                    self.selectedItems = []
-                    self.selectedItem = nil
                     self.address = ""
                     self.isLocationSelected = false
                     
@@ -160,29 +114,6 @@ class CreateNotificationViewModel: ObservableObject {
                 }
             }
         }
-    }
-    
-    private func uploadImages(images: [UIImage]) async -> [String] {
-        var uploadedUrls: [String] = []
-        let network = NetworkDataSource<NotificationItem>()
-        
-        await withTaskGroup(of: String?.self) { group in
-            for image in images {
-                if let data = image.jpegData(compressionQuality: 0.5) {
-                    group.addTask {
-                        return try? await network.uploadImage(data: data)
-                    }
-                }
-            }
-            
-            for await result in group {
-                if let url = result {
-                    uploadedUrls.append(url)
-                }
-            }
-        }
-        
-        return uploadedUrls
     }
     
     @MainActor

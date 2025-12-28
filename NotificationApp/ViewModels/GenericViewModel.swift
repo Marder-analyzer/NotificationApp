@@ -12,21 +12,10 @@ final class GenericViewModel: ObservableObject {
     @Published var notificationModel: [NotificationItem] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    @Published var followingSearchText: String = ""
-    @Published var searchText: String = ""
     
-    @Published var showOnlyMyDepartment: Bool = false
+    private let ref = Database.database().reference().child("notifications")
     
-    @Published var showOnlyFollowed: Bool = false
-    @Published var selectedStatusIndex: Int = 0
-    @Published var selectedType: NotificationType? = nil
-    @Published var sortOrder: SortOrder = .newest
-		private let ref = Database.database().reference().child("notifications")
-
-//    let currentUserDepartment = profile?.department
     @Published var profile: AuthUser?
-
-//    let currentUserRole = profile?.role
     
     private var loadTask: Task<Void, Never>?
     
@@ -91,150 +80,136 @@ final class GenericViewModel: ObservableObject {
             }
         }
     }
-	
-	
-	
-	// MARK: - FETCH
-	func fetch() async throws -> [NotificationItem] {
-			return try await withCheckedThrowingContinuation { continuation in
-					ref.observeSingleEvent(of: .value) { snapshot in
-							guard let dict = snapshot.value as? [String: Any] else {
-									continuation.resume(returning: [])
-									return
-							}
-							
-							do {
-									var items: [NotificationItem] = []
-									
-									for (key, value) in dict {
-											var itemData = value as! [String: Any]
-											itemData["id"] = key
-											
-											let data = try JSONSerialization.data(withJSONObject: itemData)
-											let item = try JSONDecoder().decode(NotificationItem.self, from: data)
-											items.append(item)
-									}
-									
-									continuation.resume(returning: items)
-							} catch {
-									continuation.resume(throwing: error)
-							}
-					}
-			}
-	}
-	
-	// MARK: - SAVE (Create)
-	func save(_ item: NotificationItem) async throws {
-			let itemRef = ref.child(item.id)
-
-			return try await withCheckedThrowingContinuation { continuation in
-					itemRef.setValue(item.toDictionary()) { error, _ in
-							if let error = error {
-									continuation.resume(throwing: error)
-							} else {
-									continuation.resume()
-							}
-					}
-			}
-	}
-	
-	// MARK: - UPDATE
-	func update(_ item: NotificationItem) async throws {
-			let itemRef = ref.child(item.id)
-			return try await withCheckedThrowingContinuation { continuation in
-					itemRef.updateChildValues(item.toDictionary()) { error, _ in
-							if let error = error {
-									continuation.resume(throwing: error)
-							} else {
-									continuation.resume()
-							}
-					}
-			}
-	}
-	
-	// MARK: - DELETE
-	func delete(_ item: NotificationItem) async throws {
-			let itemRef = ref.child(item.id)
-			
-			return try await withCheckedThrowingContinuation { continuation in
-					itemRef.removeValue { error, _ in
-							if let error = error {
-									continuation.resume(throwing: error)
-							} else {
-									continuation.resume()
-							}
-					}
-			}
-	}
-	
-	// MARK: - IMAGE UPLOAD
-	func uploadImage(data: Data) async throws -> String? {
-		return nil
-	}
+    
+    
+    
+    // MARK: - FETCH
+    func fetch() async throws -> [NotificationItem] {
+        return try await withCheckedThrowingContinuation { continuation in
+            ref.observeSingleEvent(of: .value) { snapshot in
+                guard let dict = snapshot.value as? [String: Any] else {
+                    continuation.resume(returning: [])
+                    return
+                }
+                
+                do {
+                    var items: [NotificationItem] = []
+                    
+                    for (key, value) in dict {
+                        var itemData = value as! [String: Any]
+                        itemData["id"] = key
+                        
+                        let data = try JSONSerialization.data(withJSONObject: itemData)
+                        let item = try JSONDecoder().decode(NotificationItem.self, from: data)
+                        items.append(item)
+                    }
+                    
+                    continuation.resume(returning: items)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    // MARK: - SAVE (Create)
+    func save(_ item: NotificationItem) async throws {
+        let itemRef = ref.child(item.id)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.setValue(item.toDictionary()) { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - UPDATE
+    func update(_ item: NotificationItem) async throws {
+        let itemRef = ref.child(item.id)
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.updateChildValues(item.toDictionary()) { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - DELETE
+    func delete(_ item: NotificationItem) async throws {
+        let itemRef = ref.child(item.id)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            itemRef.removeValue { error, _ in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - IMAGE UPLOAD
+    func uploadImage(data: Data) async throws -> String? {
+        return nil
+    }
 }
 
 extension GenericViewModel {
-    var homeFilteredNotifications: [NotificationItem] {
-        return applyFilter(
-            items: notificationModel,
-            query: searchText, 
-            filterByFollowed: showOnlyFollowed,
-            useGlobalFilters: true
-        )
-    }
-    
-    var followingFilteredNotifications: [NotificationItem] {
-        return applyFilter(
-            items: notificationModel,
-            query: followingSearchText,
-            filterByFollowed: true,
-            useGlobalFilters: false
-        )
-    }
-    
-	private func applyFilter(items: [NotificationItem], query: String, filterByFollowed: Bool, useGlobalFilters: Bool) -> [NotificationItem] {
-        
-        let filtered = items.filter { item in
-					if filterByFollowed {
-						guard let contain = self.profile?.collection?.first(where: { $0 == item.id }) else { return false }
-						
-					}
-					
-            let matchesSearch = query.isEmpty ||
-            item.title.localizedCaseInsensitiveContains(query) ||
-            item.description.localizedCaseInsensitiveContains(query)
-            
-            let matchesFollow = !filterByFollowed || item.isFollowed
-            
-            let matchesGlobalFilters: Bool
-            if useGlobalFilters {
-                let matchesType = selectedType == nil || item.type == selectedType
-                let matchesDepartment = !showOnlyMyDepartment || (item.type == NotificationType(rawValue: profile?.department ?? ""))
-                let matchesStatus: Bool
-                switch selectedStatusIndex {
-                case 1: matchesStatus = (item.status == .open)
-                case 2: matchesStatus = (item.status == .investigating)
-                case 3: matchesStatus = (item.status == .resolved)
-                default: matchesStatus = true
+
+    func filteredNotifications(
+        query: String,
+        onlyFollowed: Bool,
+        selectedType: NotificationType?,
+        selectedStatusIndex: Int,
+        showOnlyMyDepartment: Bool,
+        sortOrder: SortOrder
+    ) -> [NotificationItem] {
+
+        let filtered = notificationModel.filter { item in
+
+            if onlyFollowed {
+                guard profile?.collection?.contains(item.id) == true else {
+                    return false
                 }
-                matchesGlobalFilters = matchesType && matchesDepartment && matchesStatus
-            } else {
-                matchesGlobalFilters = true
             }
-            
-            return matchesSearch && matchesFollow && matchesGlobalFilters
+
+            let matchesSearch =
+                query.isEmpty ||
+                item.title.localizedCaseInsensitiveContains(query) ||
+                item.description.localizedCaseInsensitiveContains(query)
+
+            let matchesType =
+                selectedType == nil || item.type == selectedType
+
+            let matchesDepartment =
+                !showOnlyMyDepartment ||
+                item.type.rawValue == profile?.department
+
+            let matchesStatus: Bool
+            switch selectedStatusIndex {
+            case 1: matchesStatus = item.status == .open
+            case 2: matchesStatus = item.status == .investigating
+            case 3: matchesStatus = item.status == .resolved
+            default: matchesStatus = true
+            }
+
+            return matchesSearch &&
+                   matchesType &&
+                   matchesDepartment &&
+                   matchesStatus
         }
-        
-        return filtered.sorted { lhs, rhs in
-            guard let lDate = lhs.dateObject,
-                  let rDate = rhs.dateObject else { return false }
-            
-            switch sortOrder {
-            case .newest:
-                return lDate > rDate
-            case .oldest:
-                return lDate < rDate
-            }
+
+        return filtered.sorted {
+            guard let l = $0.dateObject, let r = $1.dateObject else { return false }
+            return sortOrder == .newest ? l > r : l < r
         }
     }
     

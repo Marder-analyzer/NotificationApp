@@ -186,8 +186,7 @@ struct NotificationAdminRowView: View {
             status: .open,
             userName: "Ahmet Yılmaz",
             address: "Merkezi Yemekhane Önü, Kampüs",
-            coordinate: "",
-            imageUrls: []
+            coordinate: ""
         ),
         onStatusChange: { newStatus in
             print("Yeni durum: \(newStatus.rawValue)")

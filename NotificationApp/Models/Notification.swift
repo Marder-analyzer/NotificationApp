@@ -65,10 +65,9 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
 	let userName: String?
 	let address: String
 	let coordinate: String
-	let imageUrls: [String]?
     var isFollowed: Bool = false
     
-    init(id: String = UUID().uuidString, type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, imageUrls: [String]?, isFollowed: Bool = false) {
+    init(id: String = UUID().uuidString, type: NotificationType, title: String, description: String, date: String?, status: NotificationStatus, userName: String?, address: String, coordinate: String, isFollowed: Bool = false) {
         self.id = id
 		self.type = type
 		self.title = title
@@ -78,7 +77,6 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
 		self.userName = userName
 		self.address = address
 		self.coordinate = coordinate
-		self.imageUrls = imageUrls
         self.isFollowed = isFollowed
 	}
     
@@ -112,11 +110,6 @@ struct NotificationItem: Codable, Identifiable, Equatable, FirebaseSaveable {
     }
 }
 
-struct SelectedImage: Identifiable {
-    let id = UUID()
-    let imageName: String
-}
-
 extension NotificationItem {
 	func toDictionary() -> [String: Any] {
 		return [
@@ -129,7 +122,6 @@ extension NotificationItem {
 			"userName": userName,
 			"address": address,
 			"coordinate": coordinate,
-			"imageUrls": imageUrls,
             "isFollowed" : isFollowed
 		]
 	}

@@ -9,9 +9,19 @@ import SwiftUI
 
 struct CreateNotificationView: View {
     // MARK: - Değişkenler
-    @StateObject private var viewModel = CreateNotificationViewModel()
+    @StateObject private var viewModel: CreateNotificationViewModel
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = false
+    
+    init(
+        genericVM: GenericViewModel,
+        showBackButton: Bool = false
+    ) {
+        _viewModel = StateObject(
+            wrappedValue: CreateNotificationViewModel(genericVM: genericVM)
+        )
+        self.showBackButton = showBackButton
+    }
     
     var body: some View {
         ZStack {
@@ -26,18 +36,21 @@ struct CreateNotificationView: View {
                             .background(.white.opacity(0.2))
                         
                         NotificationDetailsView(viewModel: viewModel)
+                        VStack(alignment: .leading, spacing: 24) {
+                            Text("Bildirim Türü")
+                                .font(.title3)
+                                .bold()
+                                .foregroundStyle(.white.opacity(0.7))
+                            
+                            NotificationTypeSelectionView(selectedType: $viewModel.selectedType)
+                        }
                         
-                        Text("Bildirim Türü")
-                            .font(.title3)
-                            .bold()
-                            .foregroundStyle(.white.opacity(0.7))
-                        
-                        NotificationTypeSelectionView(selectedType: $viewModel.selectedType)
                         
                     }
                     .padding(.horizontal)
                     
-                    NotificationEvidenceView(viewModel: viewModel)
+                    LocationSelectionView(viewModel: viewModel)
+                        .padding(.horizontal)
                         .padding(.vertical, 24)
                     
                     NotificationSubmitButtonView(viewModel: viewModel)
@@ -80,5 +93,8 @@ struct CreateNotificationView: View {
 }
 
 #Preview {
-    CreateNotificationView(showBackButton: false)
+    CreateNotificationView(
+        genericVM: GenericViewModel(),
+        showBackButton: false
+    )
 }

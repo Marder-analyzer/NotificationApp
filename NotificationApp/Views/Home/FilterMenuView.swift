@@ -9,13 +9,15 @@ import SwiftUI
 
 struct FilterMenuView: View {
     
-    @ObservedObject var viewModel: GenericViewModel
-	
+    @Binding var selectedType: NotificationType?
+    @Binding var showOnlyFollowed: Bool
+    @Binding var showOnlyMyDepartment: Bool
+    
     var profile: AuthUser
     
     var body: some View {
         Menu {
-            Picker("Bildirim Türü", selection: $viewModel.selectedType) {
+            Picker("Bildirim Türü", selection: $selectedType) {
                 Text("Tüm Türler").tag(Optional<NotificationType>.none)
                 ForEach(NotificationType.allCases, id: \.self) { type in
                     Label(type.rawValue, systemImage: type.iconName)
@@ -25,13 +27,13 @@ struct FilterMenuView: View {
             
             Divider()
             
-            Toggle(isOn: $viewModel.showOnlyFollowed) {
+            Toggle(isOn: $showOnlyFollowed) {
                 Label("Sadece Takip Ettiklerim", systemImage: "heart.fill")
             }
             
             if profile.role == "admin",
                let department = profile.department {
-                Toggle(isOn: $viewModel.showOnlyMyDepartment) {
+                Toggle(isOn: $showOnlyMyDepartment) {
                     Label("Yetki Alanım (\(department))", systemImage: NotificationType(rawValue:profile.department ?? "")?.iconName ?? "")
                 }
             }
@@ -47,8 +49,6 @@ struct FilterMenuView: View {
     }
     
     private var isFilterActive: Bool {
-        return viewModel.selectedType != nil ||
-               viewModel.showOnlyFollowed ||
-               viewModel.showOnlyMyDepartment
+        selectedType != nil || showOnlyFollowed || showOnlyMyDepartment
     }
 }
