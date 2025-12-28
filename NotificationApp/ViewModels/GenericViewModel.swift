@@ -234,11 +234,10 @@ extension GenericViewModel {
         showOnlyMyDepartment: Bool,
         sortOrder: SortOrder
     ) -> [NotificationItem] {
-
         let filtered = notificationModel.filter { item in
 
             if onlyFollowed {
-                guard profile?.collection?.contains(item.id) == true else {
+                guard profile?.collection?.contains(item.id) == true  else {
                     return false
                 }
             }
@@ -251,9 +250,9 @@ extension GenericViewModel {
             let matchesType =
                 selectedType == nil || item.type == selectedType
 
-            let matchesDepartment =
-                !showOnlyMyDepartment ||
-                item.type.rawValue == profile?.department
+            let department = profile?.department ?? ""
+            let matchesDepartment = !showOnlyMyDepartment ||
+            item.type.rawValue == department
 
             let matchesStatus: Bool
             switch selectedStatusIndex {

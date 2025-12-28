@@ -18,7 +18,8 @@ struct FilterMenuView: View {
     var body: some View {
         Menu {
             Picker("Bildirim Türü", selection: $selectedType) {
-                Text("Tüm Türler").tag(Optional<NotificationType>.none)
+                Label("Tüm Türler", systemImage: "square.grid.2x2.fill")
+                       .tag(Optional<NotificationType>.none)
                 ForEach(NotificationType.allCases, id: \.self) { type in
                     Label(type.rawValue, systemImage: type.iconName)
                         .tag(Optional(type))

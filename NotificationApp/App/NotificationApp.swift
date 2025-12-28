@@ -16,60 +16,60 @@ import FirebaseFirestore
 
 @main
 struct NotificationApp: App {
-	@UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-	
-	@StateObject private var appState = AppState()
-	private let notifListener = NotificationsCellListener.shared
-	@State private var restartToken = UUID()
-	
-	var body: some Scene {
-		WindowGroup {
-			RootView()
-				.id(restartToken)
-				.environmentObject(appState)
-				.task {
-					notifListener.start(appState: appState)
-				}
-				.onReceive(NotificationCenter.default.publisher(for: .restartApp)) { _ in
-					restartToken = UUID()
-				}
-		}
-	}
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
+    @StateObject private var appState = AppState()
+    private let notifListener = NotificationsCellListener.shared
+    @State private var restartToken = UUID()
+    
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+                .id(restartToken)
+                .environmentObject(appState)
+                .task {
+                    notifListener.start(appState: appState)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .restartApp)) { _ in
+                    restartToken = UUID()
+                }
+        }
+    }
 }
 
 extension Notification.Name {
-		static let restartApp = Notification.Name("restartApp")
+    static let restartApp = Notification.Name("restartApp")
 }
 
 @MainActor
 final class AppState: ObservableObject {
-	@Published var activePopup: InAppNotification? = nil
-
-	private var queue: [InAppNotification] = []
-	private var isPresenting = false
-
-	func enqueue(_ item: InAppNotification) {
-		if activePopup?.id == item.id { return }
-		if queue.contains(where: { $0.id == item.id }) { return }
-
-		queue.append(item)
-		presentNextIfNeeded()
-	}
-
-	func dismissPopup() {
-		activePopup = nil
-		isPresenting = false
-		presentNextIfNeeded()
-	}
-
-	private func presentNextIfNeeded() {
-		guard !isPresenting else { return }
-		guard activePopup == nil else { return }
-		guard !queue.isEmpty else { return }
-
-		isPresenting = true
-		activePopup = queue.removeFirst()
-	}
+    @Published var activePopup: InAppNotification? = nil
+    
+    private var queue: [InAppNotification] = []
+    private var isPresenting = false
+    
+    func enqueue(_ item: InAppNotification) {
+        if activePopup?.id == item.id { return }
+        if queue.contains(where: { $0.id == item.id }) { return }
+        
+        queue.append(item)
+        presentNextIfNeeded()
+    }
+    
+    func dismissPopup() {
+        activePopup = nil
+        isPresenting = false
+        presentNextIfNeeded()
+    }
+    
+    private func presentNextIfNeeded() {
+        guard !isPresenting else { return }
+        guard activePopup == nil else { return }
+        guard !queue.isEmpty else { return }
+        
+        isPresenting = true
+        activePopup = queue.removeFirst()
+    }
 }
 
 final class NotificationsCellListener {
@@ -203,7 +203,7 @@ final class NotificationsCellListener {
 
 
 struct InAppNotification: Identifiable, Equatable {
-	let id: String
-	let title: String
-	let description: String
+    let id: String
+    let title: String
+    let description: String
 }

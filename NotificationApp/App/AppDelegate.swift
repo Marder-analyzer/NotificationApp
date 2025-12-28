@@ -28,9 +28,9 @@ class AppDelegate: NSObject,
 		
 		Messaging.messaging().token { token, error in
 			if let error = error {
-				print("❌ FCM token error:", error)
+				print("FCM token error:", error)
 			} else {
-				print("✅ FCM token (manual):", token ?? "nil")
+				print("FCM token (manual):", token ?? "nil")
 			}
 		}
 		return true
