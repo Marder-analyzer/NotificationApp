@@ -70,7 +70,6 @@ struct ProfileView: View {
                                 description: user.department ?? "")
                         }
                     }
-                    
 					
 					Button {
 						Task {

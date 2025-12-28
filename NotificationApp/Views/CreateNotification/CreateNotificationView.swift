@@ -36,13 +36,15 @@ struct CreateNotificationView: View {
                             .background(.white.opacity(0.2))
                         
                         NotificationDetailsView(viewModel: viewModel)
+                        VStack(alignment: .leading, spacing: 24) {
+                            Text("Bildirim Türü")
+                                .font(.title3)
+                                .bold()
+                                .foregroundStyle(.white.opacity(0.7))
+                            
+                            NotificationTypeSelectionView(selectedType: $viewModel.selectedType)
+                        }
                         
-                        Text("Bildirim Türü")
-                            .font(.title3)
-                            .bold()
-                            .foregroundStyle(.white.opacity(0.7))
-                        
-                        NotificationTypeSelectionView(selectedType: $viewModel.selectedType)
                         
                     }
                     .padding(.horizontal)
