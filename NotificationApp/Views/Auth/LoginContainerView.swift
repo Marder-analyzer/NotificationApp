@@ -17,7 +17,7 @@ struct LoginContainerView: View {
 	
 	@State private var email: String = ""
 	@State private var password: String = ""
-	
+	@State private var isPresented: Bool = false
 	//MARK: - Main
 	var body: some View {
 		ZStack {
@@ -58,6 +58,8 @@ struct LoginContainerView: View {
 								user.id != ""
 							{
 								navigateToHome = true
+							} else {
+								self.isPresented = true
 							}
 						}
 					}) {
@@ -109,6 +111,16 @@ struct LoginContainerView: View {
 				.padding(.top, 10)
 			}
 		}
+		
+		.alert("Giriş bilgileriniz hatalı veya eksik", isPresented: $isPresented, actions: {
+			Button("Tamam", role: .cancel) { }
+				.frame(width: 100, height: 50)
+				.background(.blue)
+				.clipShape(RoundedRectangle(cornerRadius: 10))
+
+		}, message: {
+			
+		})
 		.navigationDestination(isPresented: $navigateToHome) {
 			MainTabView()
 		}

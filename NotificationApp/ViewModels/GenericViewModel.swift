@@ -123,7 +123,6 @@ final class GenericViewModel: ObservableObject {
 	func save(_ item: NotificationItem) async throws {
 			let itemRef = ref.child(item.id)
 
-			// 1) ANA SAVE — DEĞİŞMEDİ
 			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
 					itemRef.setValue(item.toDictionary()) { error, _ in
 							if let error = error {
@@ -134,7 +133,6 @@ final class GenericViewModel: ObservableObject {
 					}
 			}
 
-			// 2) NotificationsCell'e ekleme
 			guard let rootRef = ref.parent else {
 					throw NSError(
 							domain: "RealtimeDatabase",
@@ -169,7 +167,6 @@ final class GenericViewModel: ObservableObject {
 	func update(_ item: NotificationItem) async throws {
 			let itemRef = ref.child(item.id)
 
-			// 1) BUNU DEĞİŞTİRMİYORUZ (aynen)
 			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
 					itemRef.updateChildValues(item.toDictionary()) { error, _ in
 							if let error = error {
@@ -180,7 +177,6 @@ final class GenericViewModel: ObservableObject {
 					}
 			}
 
-			// 2) Ek olarak: notificationsCell/{id} güncelle
 			guard let rootRef = ref.parent else {
 					throw NSError(
 							domain: "RealtimeDatabase",

@@ -19,6 +19,7 @@ struct RegisterContainerView: View {
 	@State private var password: String = ""
 	@State private var selectedIndex = 1
 	@State private var isPresented: Bool = false
+	@State private var isPresentedError: Bool = false
 	@State private var errorMessage: String? = ""
 	
 	var body: some View {
@@ -89,12 +90,13 @@ struct RegisterContainerView: View {
 					Button(action: {
 						Task {
 							let result = await authCoordinator.register(email: email, password: password, nameSurname: name, userType: selectedIndex == 1 ? "admin" : "user", department: selectedNotificationType.rawValue)
-							if let result {
+							if let result,
+								 result.id != "" {
 								self.errorMessage = "Kayıt olma başarılı login olabilirsiniz"
 								isPresented.toggle()
 							} else {
-								self.errorMessage = authCoordinator.errorMessage
-								isPresented.toggle()
+								self.errorMessage = authCoordinator.errorMessage ?? "Lütfen eksik bilgilerinizi kontrol ediniz"
+								isPresentedError.toggle()
 							}
 							
 						}
@@ -146,6 +148,14 @@ struct RegisterContainerView: View {
 			} label: {
 				Text("OK")
 			}.frame(width: 100, height: 50)
+				.background(.blue)
+				.clipShape(RoundedRectangle(cornerRadius: 10))
+
+		}, message: {
+			
+		})
+		.alert(self.errorMessage ?? "", isPresented: $isPresentedError, actions: {
+			Button("Tamam", role: .cancel) { }.frame(width: 100, height: 50)
 				.background(.blue)
 				.clipShape(RoundedRectangle(cornerRadius: 10))
 

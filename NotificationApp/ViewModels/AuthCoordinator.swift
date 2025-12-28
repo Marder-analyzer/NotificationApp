@@ -23,6 +23,7 @@ final class AuthCoordinator: ObservableObject {
 	@Published var profileUser: AuthUser?
 	
 	func register(email: String, password: String, nameSurname: String, userType: String, department: String) async -> AuthUser? {
+		guard email != "", password != "", nameSurname != "", userType != "", department != "" else { return nil }
 		let result = try? await Auth.auth().createUser(withEmail: email, password: password)
 		let user = result?.user
 		
@@ -38,6 +39,7 @@ final class AuthCoordinator: ObservableObject {
 	}
 	
 	func login(email: String, password: String) async -> AuthUser? {
+		guard email != "", password != "" else { return nil }
 		let result = try? await Auth.auth().signIn(withEmail: email, password: password)
 		let user = result?.user
 		return AuthUser(id: user?.uid ?? "", email: user?.email)
