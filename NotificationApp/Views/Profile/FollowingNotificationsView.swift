@@ -56,7 +56,6 @@ struct FollowingNotificationsView: View {
                     else if isLoaded {
                         LazyVStack(spacing: 16) {
                             ForEach(items) { item in
-                                
                                 NavigationLink {
                                     NotificationDetailView(
                                         vm: vm,
