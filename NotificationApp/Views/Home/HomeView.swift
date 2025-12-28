@@ -24,7 +24,7 @@ struct HomeView: View {
             onlyFollowed: showOnlyFollowed,
             selectedType: selectedType,
             selectedStatusIndex: selectedStatusIndex,
-            showOnlyMyDepartment: false,
+            showOnlyMyDepartment: showOnlyMyDepartment,
             sortOrder: sortOrder
         )
     }
