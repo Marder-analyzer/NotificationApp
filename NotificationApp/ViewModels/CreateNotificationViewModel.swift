@@ -37,12 +37,12 @@ class CreateNotificationViewModel: ObservableObject {
     
     // MARK: - Doğrulama (Validation)
     var isValid: Bool {
-        return !title.isEmpty && !description.isEmpty
+        return title != "" && description != ""
     }
     
     // MARK: - Fonksiyonlar
     
-    func submitNotification(completion: @escaping () -> Void) {
+	func submitNotification(isEmergency: Bool? = nil, completion: @escaping () -> Void) {
         
         if title.trimmingCharacters(in: .whitespacesAndNewlines).count < 3 {
             self.alertMessage = "Lütfen geçerli bir başlık giriniz. (En az 3 karakter)"
@@ -66,12 +66,13 @@ class CreateNotificationViewModel: ObservableObject {
         let currentCoordinate = "\(region.center.latitude), \(region.center.longitude)"
         
         createAndSaveNotification(
+					isEmergency: isEmergency,
             coordinate: currentCoordinate,
             completion: completion
         )
     }
     
-    private func createAndSaveNotification(coordinate: String, completion: @escaping () -> Void) {
+	private func createAndSaveNotification(isEmergency: Bool? = nil, coordinate: String, completion: @escaping () -> Void) {
         
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "tr_TR")
@@ -87,7 +88,8 @@ class CreateNotificationViewModel: ObservableObject {
             userName: Auth.auth().currentUser?.email ?? "",
             address: self.address,
             coordinate: coordinate,
-            isFollowed: false
+            isFollowed: false,
+						isEmergency: isEmergency
         )
         
         Task {

@@ -41,7 +41,7 @@ struct CreateEmergencyNotificationView: View {
         }
         .navigationBarHidden(true)
         .onTapGesture { hideKeyboard() }
-        .alert("Acil Durum Yayını", isPresented: $showConfirmationAlert, actions: alertActions, message: alertMessage)
+//        .alert("Acil Durum Yayını", isPresented: $showConfirmationAlert, actions: alertActions, message: alertMessage)
         .alert("Bilgi", isPresented: $viewModel.showAlert) { Button("Tamam") { } } message: { Text(viewModel.alertMessage) }
     }
     
@@ -83,7 +83,9 @@ struct CreateEmergencyNotificationView: View {
                 placeholder: "Rapor başlığını girin",
                 configuration: configuration.createNotificationTitleConfiguration
             )
-            .onCodeCompletion { viewModel.title = $0 }
+            .onCodeCompletion { 
+							viewModel.title = $0
+						}
         }
     }
     
@@ -132,6 +134,9 @@ struct CreateEmergencyNotificationView: View {
         Button {
             if viewModel.isValid {
                 showConfirmationAlert = true
+								viewModel.submitNotification(isEmergency: true) {
+									
+								}
             } else {
                 viewModel.alertMessage = "Lütfen başlık ve açıklama alanlarını doldurunuz."
                 viewModel.showAlert = true

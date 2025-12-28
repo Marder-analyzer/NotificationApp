@@ -67,7 +67,7 @@ struct ProfileView: View {
 							rowMaker(
 								icon: "building.2",
 								title: "Bildirimler",
-								description: user.department ?? "")
+								description: "")
 						}
 					}
 
@@ -101,8 +101,7 @@ struct ProfileView: View {
 	func rowMaker(
 		icon: String,
 		title: String,
-		description: String,
-		onAction: (() -> Void)? = nil
+		description: String
 	) -> some View {
 		HStack {
 			Image(systemName: icon)
@@ -124,9 +123,6 @@ struct ProfileView: View {
 						.foregroundStyle(.gray).opacity(0.3)
 						.padding(.horizontal, 5)
 				}
-			}
-			.onTapGesture {
-				onAction?()
 			}
 	}
 }

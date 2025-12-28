@@ -71,6 +71,7 @@ final class AppState: ObservableObject {
 		activePopup = queue.removeFirst()
 	}
 }
+
 final class NotificationsCellListener {
 	static let shared = NotificationsCellListener()
 	
@@ -78,6 +79,7 @@ final class NotificationsCellListener {
 	private var addHandle: DatabaseHandle?
 	private var changeHandle: DatabaseHandle?
 	private var startAtMillis: Double = Date().timeIntervalSince1970 * 1000
+	private let listenerStartedAt: TimeInterval = Date().timeIntervalSince1970
 	private(set) var followedIds = Set<String>()
 	
 	private var isRefreshing = false
@@ -92,7 +94,14 @@ final class NotificationsCellListener {
 					self.ref = ref
 
 					let path = ref.child("notificationsCell")
-
+				
+				self.addHandle = path.observe(.childAdded, with: { [weak self] snap in
+					guard let self else { return }
+					self.handleSnapAdd(snap, appState: appState, event: "added")
+				}, withCancel: { error in
+					print("childAdded cancelled:", error.localizedDescription)
+				})
+				
 					self.changeHandle = path.observe(.childChanged, with: { [weak self] snap in
 							guard let self else { return }
 							self.handleSnap(snap, appState: appState, event: "changed")
@@ -148,16 +157,38 @@ final class NotificationsCellListener {
 
 					guard let dict = snap.value as? [String: Any] else { return }
 
-					let title = dict["displayTitle"] as? String ?? ""
-					let description = dict["description"] as? String ?? ""
-
+					let title = dict["title"] as? String ?? ""
+					let description = dict["description"] as? String ?? "\(dict["description"] as? Int ?? 0)"
+					let emergency = dict["emergency"] as? Bool ?? false
 					print("notificationsCell \(event):", snap.key, dict)
 
 					let item = InAppNotification(id: snap.key, title: title, description: description)
 					Task { @MainActor in
+						appState.enqueue(item)
+					}
+	}
+	
+	private func handleSnapAdd(_ snap: DataSnapshot, appState: AppState, event: String) {
+			guard let dict = snap.value as? [String: Any] else { return }
+
+			let title = dict["title"] as? String ?? ""
+			let description = dict["description"] as? String
+					?? "\(dict["description"] as? Int ?? 0)"
+			let emergency = dict["isEmergency"] as? Bool ?? false
+
+			if emergency {
+					let item = InAppNotification(
+							id: snap.key,
+							title: title,
+							description: description
+					)
+
+					Task { @MainActor in
 							appState.enqueue(item)
 					}
 			}
+	}
+
 
 	func stop() {
 		guard let ref else { return }

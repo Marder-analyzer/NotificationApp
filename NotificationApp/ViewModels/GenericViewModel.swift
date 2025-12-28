@@ -144,10 +144,14 @@ final class GenericViewModel: ObservableObject {
 			}
 
 			let cellRef = rootRef.child("notificationsCell").child(item.id)
-			let cellPayload: [String: Any] = [
+			var cellPayload: [String: Any] = [
 					"title": item.title,
 					"description": item.description
 			]
+		
+		if let emergency = item.isEmergency {
+			cellPayload["isEmergency"] = emergency
+		}
 
 			try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
 					cellRef.setValue(cellPayload) { error, _ in
